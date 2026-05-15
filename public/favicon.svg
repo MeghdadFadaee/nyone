@@ -1,17 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nyone live stream">
-    <defs>
-        <linearGradient id="nyone-favicon-bg" x1="8" x2="56" y1="7" y2="58" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#111827" />
-            <stop offset=".55" stop-color="#0f172a" />
-            <stop offset="1" stop-color="#020617" />
-        </linearGradient>
-        <linearGradient id="nyone-favicon-core" x1="25" x2="39" y1="21" y2="43" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#67e8f9" />
-            <stop offset="1" stop-color="#f8fafc" />
-        </linearGradient>
-    </defs>
-    <rect width="52" height="52" x="6" y="6" fill="url(#nyone-favicon-bg)" rx="15" />
-    <path fill="none" stroke="#22d3ee" stroke-linecap="round" stroke-width="4" d="M17 25c-4 5-4 13 0 18M47 25c4 5 4 13 0 18" />
-    <rect width="18" height="24" x="23" y="20" fill="#020617" stroke="url(#nyone-favicon-core)" stroke-width="4" rx="6" />
-    <circle cx="32" cy="32" r="4.5" fill="#67e8f9" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Nyone">
+    <rect width="64" height="64" rx="14" fill="#191023" />
+    <path d="M18.2 45.8a19.5 19.5 0 0 1 0-27.6" fill="none" stroke="#ff3d8d" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M45.8 18.2a19.5 19.5 0 0 1 0 27.6" fill="none" stroke="#ff3d8d" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M24.2 39.7a10.9 10.9 0 0 1 0-15.4" fill="none" stroke="#9d7cff" stroke-width="4" stroke-linecap="round" />
+    <path d="M39.8 24.3a10.9 10.9 0 0 1 0 15.4" fill="none" stroke="#9d7cff" stroke-width="4" stroke-linecap="round" />
+    <circle cx="32" cy="32" r="12.5" fill="#fbf6ff" />
+    <path d="M29 25.8v12.4L39.4 32 29 25.8Z" fill="#191023" />
 </svg>
