@@ -243,8 +243,8 @@ export default function Dashboard({
                         </Panel>
                     </section>
                 ) : (
-                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-                        <div className="grid gap-6">
+                    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+                        <div className="grid min-w-0 gap-6">
                             <section className="grid gap-4 md:grid-cols-3">
                                 <MetricCard
                                     label="Broadcast state"
@@ -438,7 +438,7 @@ export default function Dashboard({
                             </Panel>
                         </div>
 
-                        <aside className="grid content-start gap-6">
+                        <aside className="grid min-w-0 content-start gap-6">
                             <Panel title="OBS stream key">
                                 <div className="border-warning/40 bg-warning/10 text-warning mb-4 flex items-start gap-3 rounded-md border p-3 text-sm">
                                     <ShieldAlert className="mt-0.5 size-4 shrink-0" />
@@ -587,7 +587,7 @@ function Panel({
     children: ReactNode;
 }) {
     return (
-        <section className="rounded-md border bg-card p-5 shadow-sm">
+        <section className="min-w-0 rounded-md border bg-card p-5 shadow-sm">
             <div className="mb-5">
                 <h2 className="font-semibold">{title}</h2>
                 {description && (
@@ -660,14 +660,14 @@ function CopyRow({
     onCopy: (text: string) => Promise<boolean>;
 }) {
     return (
-        <div className="grid gap-2">
+        <div className="grid min-w-0 gap-2">
             <div className="text-xs font-medium text-muted-foreground uppercase">
                 {label}
             </div>
-            <div className="flex gap-2">
+            <div className="flex min-w-0 gap-2">
                 <code
                     className={cn(
-                        'min-w-0 flex-1 overflow-hidden rounded-md border bg-background px-3 py-2 text-xs text-ellipsis',
+                        'min-w-0 flex-1 overflow-hidden rounded-md border bg-background px-3 py-2 text-xs text-ellipsis whitespace-nowrap',
                         muted && 'text-muted-foreground',
                     )}
                 >
@@ -677,6 +677,7 @@ function CopyRow({
                     type="button"
                     variant={copied ? 'default' : 'outline'}
                     size="icon"
+                    className="shrink-0"
                     onClick={() => void onCopy(value)}
                 >
                     {copied ? (
