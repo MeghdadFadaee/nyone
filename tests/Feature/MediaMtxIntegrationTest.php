@@ -12,6 +12,16 @@ class MediaMtxIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'streaming.hls_public_url' => 'http://localhost:8888',
+            'streaming.mediamtx_shared_secret' => 'local-dev-secret',
+        ]);
+    }
+
     public function test_mediamtx_publish_auth_accepts_valid_stream_key(): void
     {
         $channel = Channel::factory()->create(['slug' => 'valid-channel']);
