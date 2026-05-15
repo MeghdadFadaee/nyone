@@ -3,6 +3,7 @@ import {
     Check,
     Copy,
     Eye,
+    ImagePlus,
     Radio,
     RotateCw,
     Save,
@@ -11,7 +12,7 @@ import {
     Video,
 } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -73,6 +74,10 @@ export default function Dashboard({
 }: Props) {
     const [copiedText, copy] = useClipboard();
     const [stopTarget, setStopTarget] = useState<BroadcastSummary | null>(null);
+    const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState<
+        string | null
+    >(null);
+    const thumbnailInputRef = useRef<HTMLInputElement>(null);
     const liveBroadcast = channel?.live_broadcast ?? null;
     const pendingBroadcast =
         recentBroadcasts.find((broadcast) => broadcast.status === 'pending') ??
@@ -84,15 +89,25 @@ export default function Dashboard({
         category_id: '',
     });
     const channelForm = useForm({
+        _method: 'PATCH',
         display_name: channel?.display_name ?? '',
         slug: channel?.slug ?? '',
         description: channel?.description ?? '',
         category_id: channel?.category_id ? String(channel.category_id) : '',
+        thumbnail: null as File | null,
     });
     const broadcastForm = useForm({
         title: '',
         recording_enabled: false,
     });
+
+    useEffect(() => {
+        return () => {
+            if (thumbnailPreviewUrl) {
+                URL.revokeObjectURL(thumbnailPreviewUrl);
+            }
+        };
+    }, [thumbnailPreviewUrl]);
 
     function createChannel(event: FormEvent) {
         event.preventDefault();
@@ -101,7 +116,22 @@ export default function Dashboard({
 
     function updateChannel(event: FormEvent) {
         event.preventDefault();
-        channelForm.submit(updateChannelRoute());
+        channelForm.post(updateChannelRoute.url(), {
+            forceFormData: true,
+            onSuccess: () => {
+                channelForm.reset('thumbnail');
+                setThumbnailPreviewUrl(null);
+
+                if (thumbnailInputRef.current) {
+                    thumbnailInputRef.current.value = '';
+                }
+            },
+        });
+    }
+
+    function updateThumbnail(file: File | null) {
+        channelForm.setData('thumbnail', file);
+        setThumbnailPreviewUrl(file ? URL.createObjectURL(file) : null);
     }
 
     function createBroadcast(event: FormEvent) {
@@ -389,6 +419,73 @@ export default function Dashboard({
                                                 )
                                             }
                                         />
+                                    </Field>
+                                    <Field
+                                        label="Live thumbnail"
+                                        error={channelForm.errors.thumbnail}
+                                        className="md:col-span-2"
+                                    >
+                                        <div className="flex flex-col gap-3 rounded-md border bg-background p-3 sm:flex-row sm:items-center">
+                                            <div className="aspect-video w-full overflow-hidden rounded-md bg-muted sm:w-40 sm:shrink-0">
+                                                {thumbnailPreviewUrl ||
+                                                channel.thumbnail_url ? (
+                                                    <img
+                                                        src={
+                                                            thumbnailPreviewUrl ??
+                                                            channel.thumbnail_url ??
+                                                            ''
+                                                        }
+                                                        alt=""
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="grid h-full place-items-center text-xs text-muted-foreground">
+                                                        No thumbnail
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="grid min-w-0 flex-1 gap-2">
+                                                <Input
+                                                    ref={thumbnailInputRef}
+                                                    type="file"
+                                                    accept="image/jpeg,image/png,image/webp"
+                                                    onChange={(event) =>
+                                                        updateThumbnail(
+                                                            event.target
+                                                                .files?.[0] ??
+                                                                null,
+                                                        )
+                                                    }
+                                                />
+                                                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                                    <ImagePlus className="size-3.5" />
+                                                    <span>
+                                                        Use a 16:9 JPG, PNG, or
+                                                        WebP up to 4 MB.
+                                                    </span>
+                                                    {channelForm.data
+                                                        .thumbnail && (
+                                                        <span className="truncate font-medium text-foreground">
+                                                            {
+                                                                channelForm.data
+                                                                    .thumbnail
+                                                                    .name
+                                                            }
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {channelForm.progress && (
+                                                    <progress
+                                                        value={
+                                                            channelForm.progress
+                                                                .percentage
+                                                        }
+                                                        max="100"
+                                                        className="h-1.5 w-full"
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
                                     </Field>
                                     <Field
                                         label="Description"

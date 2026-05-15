@@ -6,6 +6,8 @@ use App\Models\Broadcast;
 use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -67,5 +69,61 @@ class DashboardTest extends TestCase
                 ->where('channel.banner_url', '/storage/channels/demo/banner.jpg')
                 ->where('channel.thumbnail_url', '/storage/channels/demo/thumb.jpg'),
             );
+    }
+
+    public function test_creator_can_update_channel_thumbnail(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $channel = Channel::factory()->for($user)->create([
+            'thumbnail_path' => 'channels/demo/old-thumb.jpg',
+        ]);
+
+        Storage::disk('public')->put($channel->thumbnail_path, 'old thumbnail');
+
+        $this->actingAs($user)
+            ->post(route('creator.channel.update'), [
+                '_method' => 'PATCH',
+                'display_name' => $channel->display_name,
+                'slug' => $channel->slug,
+                'description' => $channel->description,
+                'category_id' => $channel->category_id,
+                'thumbnail' => UploadedFile::fake()->image('thumbnail.jpg', 1280, 720),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $channel->refresh();
+
+        $this->assertNotSame('channels/demo/old-thumb.jpg', $channel->thumbnail_path);
+        $this->assertStringStartsWith("channels/{$channel->id}/thumbnails/", $channel->thumbnail_path);
+        Storage::disk('public')->assertMissing('channels/demo/old-thumb.jpg');
+        Storage::disk('public')->assertExists($channel->thumbnail_path);
+    }
+
+    public function test_creator_channel_thumbnail_must_be_an_image(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $channel = Channel::factory()->for($user)->create([
+            'thumbnail_path' => 'channels/demo/current-thumb.jpg',
+        ]);
+
+        $this->actingAs($user)
+            ->from(route('dashboard'))
+            ->post(route('creator.channel.update'), [
+                '_method' => 'PATCH',
+                'display_name' => $channel->display_name,
+                'slug' => $channel->slug,
+                'description' => $channel->description,
+                'category_id' => $channel->category_id,
+                'thumbnail' => UploadedFile::fake()->create('thumbnail.txt', 8, 'text/plain'),
+            ])
+            ->assertRedirect(route('dashboard'))
+            ->assertSessionHasErrors('thumbnail');
+
+        $this->assertSame('channels/demo/current-thumb.jpg', $channel->refresh()->thumbnail_path);
     }
 }

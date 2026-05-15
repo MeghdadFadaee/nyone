@@ -90,7 +90,18 @@ class CreatorDashboardController extends Controller
             'slug' => ['required', 'string', 'min:3', 'max:40', 'alpha_dash:ascii', 'lowercase', Rule::unique('channels', 'slug')->ignore($channel)],
             'description' => ['nullable', 'string', 'max:1000'],
             'category_id' => ['nullable', 'exists:categories,id'],
+            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($channel->thumbnail_path) {
+                Storage::disk('public')->delete($channel->thumbnail_path);
+            }
+
+            $validated['thumbnail_path'] = $request->file('thumbnail')->store("channels/{$channel->id}/thumbnails", 'public');
+        }
+
+        unset($validated['thumbnail']);
 
         $channel->update([
             ...$validated,
