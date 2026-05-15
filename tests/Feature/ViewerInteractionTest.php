@@ -1,0 +1,61 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Broadcast;
+use App\Models\Channel;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ViewerInteractionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_follow_channel(): void
+    {
+        $viewer = User::factory()->create();
+        $channel = Channel::factory()->create(['slug' => 'demo']);
+
+        $this->actingAs($viewer)
+            ->post(route('channels.follow', $channel))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('follows', [
+            'channel_id' => $channel->id,
+            'user_id' => $viewer->id,
+        ]);
+    }
+
+    public function test_authenticated_user_can_chat_while_channel_is_live(): void
+    {
+        $viewer = User::factory()->create();
+        $channel = Channel::factory()->create(['slug' => 'demo', 'is_live' => true]);
+        $broadcast = Broadcast::factory()->for($channel)->live()->create();
+        $channel->forceFill(['live_broadcast_id' => $broadcast->id])->save();
+
+        $this->actingAs($viewer)
+            ->post(route('channels.chat.store', $channel), [
+                'body' => 'Hello chat',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('chat_messages', [
+            'channel_id' => $channel->id,
+            'broadcast_id' => $broadcast->id,
+            'user_id' => $viewer->id,
+            'body' => 'Hello chat',
+        ]);
+    }
+
+    public function test_anonymous_users_can_watch_channel_page_but_not_chat(): void
+    {
+        $channel = Channel::factory()->create(['slug' => 'demo']);
+
+        $this->get(route('channels.show', $channel))->assertOk();
+
+        $this->post(route('channels.chat.store', $channel), [
+            'body' => 'No auth',
+        ])->assertRedirect(route('login'));
+    }
+}
