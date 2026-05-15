@@ -168,11 +168,6 @@ MediaMTX current files:
 - `deploy/mediamtx.yml`: currently points auth/hooks to `https://nyone.net`.
 - `deploy/mediamtx.home.yml`: points auth/hooks to `https://nyone.net`.
 
-Known mismatch:
-
-- `.env` currently points the app at `nyone.net`, while `deploy/mediamtx.yml` points MediaMTX hooks at `nyone.net`.
-- Before live testing, decide which domain is active and align `.env`, `deploy/mediamtx.yml`, and Nginx config.
-
 MediaMTX ports currently configured:
 
 - RTMP: `:19935`
@@ -212,4 +207,3 @@ Last known successful verification from previous implementation:
 ```text
 Read AGENTS.md and docs/ui-ux-handoff.md. Focus only on improving Nyone's UI/UX. Start with the channel watch page and creator studio, keep backend changes minimal, and verify with tests/typecheck/build.
 ```
-

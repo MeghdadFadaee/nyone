@@ -4,12 +4,12 @@ These configs match the current project domains:
 
 - App: `https://nyone.net`
 - HLS playback: `https://nyone-hls.net`
-- OBS ingest: `rtmp://nyone.net:1935`
+- OBS ingest: `rtmp://nyone.net:19935`
 
 MediaMTX stays private on local ports:
 
-- RTMP ingest: `127.0.0.1:1935`
-- HLS: `127.0.0.1:1988`
+- RTMP ingest: `0.0.0.0:19935` directly through MediaMTX
+- HLS: `127.0.0.1:19988`
 
 Install layout on Ubuntu/Debian:
 
@@ -27,7 +27,7 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-Make sure DNS points all three hostnames to the server:
+Make sure DNS points both hostnames to the server:
 
 - `nyone.net`
 - `nyone-hls.net`
@@ -36,7 +36,9 @@ The Laravel `.env` should use:
 
 ```env
 APP_URL=https://nyone.net
-STREAMING_RTMP_INGEST_URL=rtmp://nyone.net:1935
+STREAMING_RTMP_INGEST_URL=rtmp://nyone.net:19935
 STREAMING_HLS_PUBLIC_URL=https://nyone-hls.net
 MEDIAMTX_SHARED_SECRET=change-this-secret
 ```
+
+Open TCP `19935` on the server firewall for OBS ingest. Nginx is only proxying the Laravel app and HLS HTTPS playback in this setup.

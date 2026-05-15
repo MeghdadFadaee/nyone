@@ -296,7 +296,7 @@ export default function Dashboard({
                                                     event.target.value,
                                                 )
                                             }
-                                            placeholder="Building live with Laravel"
+                                            placeholder="Building Nyone live"
                                         />
                                     </Field>
                                     <label className="mt-6 flex h-9 items-center gap-2 rounded-md border px-3 text-sm">

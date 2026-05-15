@@ -1,11 +1,16 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "nyone/streaming-platform",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Nyone live streaming platform built with Laravel, Inertia React, and MediaMTX.",
     "keywords": [
+        "nyone",
+        "streaming",
+        "live-streaming",
+        "mediamtx",
+        "inertia",
         "laravel",
-        "framework"
+        "react"
     ],
     "license": "MIT",
     "require": {

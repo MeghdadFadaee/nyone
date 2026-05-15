@@ -1,5 +1,7 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
+    "name": "nyone",
+    "description": "Nyone live streaming platform frontend.",
     "private": true,
     "type": "module",
     "scripts": {
