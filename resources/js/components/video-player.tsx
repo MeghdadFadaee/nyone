@@ -1,4 +1,4 @@
-import Hls from 'hls.js';
+import Hls from 'hls.js/light';
 import { useEffect, useRef } from 'react';
 
 export function VideoPlayer({
