@@ -32,6 +32,8 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
+import { dashboard, home } from '@/routes';
+import { dashboard as adminDashboard } from '@/routes/admin';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -49,12 +51,12 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const mainNavItems: NavItem[] = [
         {
             title: 'Live',
-            href: '/',
+            href: home(),
             icon: Radio,
         },
         {
             title: 'Studio',
-            href: '/dashboard',
+            href: dashboard(),
             icon: LayoutGrid,
         },
     ];
@@ -62,7 +64,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     if (auth.user?.is_admin) {
         mainNavItems.push({
             title: 'Admin',
-            href: '/admin',
+            href: adminDashboard(),
             icon: Shield,
         });
     }
@@ -118,7 +120,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     </div>
 
                     <Link
-                        href="/"
+                        href={home()}
                         prefetch
                         className="flex items-center space-x-2"
                     >
@@ -167,7 +169,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 size="icon"
                                 className="group h-9 w-9 cursor-pointer"
                             >
-                                <Link href="/">
+                                <Link href={home()}>
                                     <Search className="!size-5 opacity-80 group-hover:opacity-100" />
                                 </Link>
                             </Button>
@@ -175,7 +177,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Link
-                                            href="/"
+                                            href={home()}
                                             className="group inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                                         >
                                             <span className="sr-only">

@@ -1,6 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Ban, Radio, Shield, StopCircle, Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { dashboard as adminDashboard } from '@/routes/admin';
+import { stop as stopBroadcast } from '@/routes/admin/broadcasts';
+import { restore, suspend } from '@/routes/admin/channels';
+import { show as showChannel } from '@/routes/channels';
 
 type LiveBroadcast = {
     id: number;
@@ -89,7 +93,9 @@ export default function AdminDashboard({
                                 <div className="flex gap-2">
                                     <Button asChild variant="outline" size="sm">
                                         <Link
-                                            href={`/channels/${broadcast.channel.slug}`}
+                                            href={showChannel(
+                                                broadcast.channel.slug,
+                                            )}
                                         >
                                             Open
                                         </Link>
@@ -99,7 +105,7 @@ export default function AdminDashboard({
                                         size="sm"
                                         onClick={() =>
                                             router.post(
-                                                `/admin/broadcasts/${broadcast.id}/stop`,
+                                                stopBroadcast(broadcast.id),
                                             )
                                         }
                                     >
@@ -136,9 +142,7 @@ export default function AdminDashboard({
                                 </div>
                                 <div className="flex gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link
-                                            href={`/channels/${channel.slug}`}
-                                        >
+                                        <Link href={showChannel(channel.slug)}>
                                             Open
                                         </Link>
                                     </Button>
@@ -148,7 +152,7 @@ export default function AdminDashboard({
                                             size="sm"
                                             onClick={() =>
                                                 router.post(
-                                                    `/admin/channels/${channel.slug}/restore`,
+                                                    restore(channel.slug),
                                                 )
                                             }
                                         >
@@ -161,7 +165,7 @@ export default function AdminDashboard({
                                             size="sm"
                                             onClick={() =>
                                                 router.post(
-                                                    `/admin/channels/${channel.slug}/suspend`,
+                                                    suspend(channel.slug),
                                                 )
                                             }
                                         >
@@ -183,7 +187,7 @@ AdminDashboard.layout = {
     breadcrumbs: [
         {
             title: 'Admin',
-            href: '/admin',
+            href: adminDashboard(),
         },
     ],
 };

@@ -12,6 +12,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { dashboard, home } from '@/routes';
+import { dashboard as adminDashboard } from '@/routes/admin';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -19,12 +21,12 @@ export function AppSidebar() {
     const mainNavItems: NavItem[] = [
         {
             title: 'Live',
-            href: '/',
+            href: home(),
             icon: Radio,
         },
         {
             title: 'Studio',
-            href: '/dashboard',
+            href: dashboard(),
             icon: LayoutGrid,
         },
     ];
@@ -32,7 +34,7 @@ export function AppSidebar() {
     if (auth.user?.is_admin) {
         mainNavItems.push({
             title: 'Admin',
-            href: '/admin',
+            href: adminDashboard(),
             icon: Shield,
         });
     }
@@ -43,7 +45,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/" prefetch>
+                            <Link href={home()} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>

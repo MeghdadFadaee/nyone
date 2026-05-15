@@ -10,6 +10,8 @@ import {
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { dashboard, home, login, register } from '@/routes';
+import { show as showChannel } from '@/routes/channels';
 import type { Category, ChannelCard } from '@/types';
 
 type Props = {
@@ -52,7 +54,7 @@ export default function Welcome({
                 <header className="border-b">
                     <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4">
                         <Link
-                            href="/"
+                            href={home()}
                             className="flex items-center gap-2 font-semibold"
                         >
                             <span className="flex size-9 items-center justify-center rounded-md bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">
@@ -64,7 +66,7 @@ export default function Welcome({
                         <div className="ml-auto flex items-center gap-2">
                             {auth.user ? (
                                 <Button asChild size="sm">
-                                    <Link href="/dashboard">
+                                    <Link href={dashboard()}>
                                         <LayoutDashboard className="size-4" />
                                         Dashboard
                                     </Link>
@@ -72,11 +74,11 @@ export default function Welcome({
                             ) : (
                                 <>
                                     <Button asChild variant="ghost" size="sm">
-                                        <Link href="/login">Log in</Link>
+                                        <Link href={login()}>Log in</Link>
                                     </Button>
                                     {canRegister && (
                                         <Button asChild size="sm">
-                                            <Link href="/register">
+                                            <Link href={register()}>
                                                 <UserPlus className="size-4" />
                                                 Register
                                             </Link>
@@ -122,9 +124,7 @@ export default function Welcome({
                             </div>
                             <Button asChild variant="outline">
                                 <Link
-                                    href={
-                                        auth.user ? '/dashboard' : '/register'
-                                    }
+                                    href={auth.user ? dashboard() : register()}
                                 >
                                     {auth.user
                                         ? 'Open studio'
@@ -173,7 +173,7 @@ export default function Welcome({
                                 {filteredChannels.map((channel) => (
                                     <Link
                                         key={channel.id}
-                                        href={`/channels/${channel.slug}`}
+                                        href={showChannel(channel.slug)}
                                         className="group overflow-hidden rounded-md border bg-card text-card-foreground transition-colors hover:border-neutral-400 dark:hover:border-neutral-600"
                                     >
                                         <div className="flex aspect-video items-center justify-center bg-neutral-950 text-white">

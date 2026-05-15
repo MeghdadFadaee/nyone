@@ -12,6 +12,9 @@ import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { VideoPlayer } from '@/components/video-player';
+import { home, login } from '@/routes';
+import { follow, unfollow } from '@/routes/channels';
+import { store as storeChat } from '@/routes/channels/chat';
 import type {
     BroadcastSummary,
     ChannelDetail,
@@ -39,7 +42,7 @@ export default function ChannelShow({
 
     function submitChat(event: FormEvent) {
         event.preventDefault();
-        chatForm.post(`/channels/${channel.slug}/chat`, {
+        chatForm.submit(storeChat(channel.slug), {
             preserveScroll: true,
             onSuccess: () => chatForm.reset('body'),
         });
@@ -108,13 +111,13 @@ export default function ChannelShow({
                                     onClick={() =>
                                         isFollowing
                                             ? router.delete(
-                                                  `/channels/${channel.slug}/follow`,
+                                                  unfollow(channel.slug),
                                                   {
                                                       preserveScroll: true,
                                                   },
                                               )
                                             : router.post(
-                                                  `/channels/${channel.slug}/follow`,
+                                                  follow(channel.slug),
                                                   undefined,
                                                   {
                                                       preserveScroll: true,
@@ -127,7 +130,7 @@ export default function ChannelShow({
                                 </Button>
                             ) : (
                                 <Button asChild variant="outline">
-                                    <Link href="/login">
+                                    <Link href={login()}>
                                         <LogIn className="size-4" />
                                         Log in to follow
                                     </Link>
@@ -244,7 +247,7 @@ export default function ChannelShow({
                                 variant="outline"
                                 className="w-full"
                             >
-                                <Link href="/login">Log in to chat</Link>
+                                <Link href={login()}>Log in to chat</Link>
                             </Button>
                         )}
                     </div>
@@ -258,7 +261,7 @@ ChannelShow.layout = {
     breadcrumbs: [
         {
             title: 'Channel',
-            href: '/',
+            href: home(),
         },
     ],
 };

@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     Copy,
     KeyRound,
@@ -13,6 +13,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { dashboard as dashboardRoute } from '@/routes';
+import { show as showChannel } from '@/routes/channels';
+import {
+    stop as stopBroadcastRoute,
+    store as storeBroadcastRoute,
+} from '@/routes/creator/broadcasts';
+import {
+    store as storeChannelRoute,
+    update as updateChannelRoute,
+} from '@/routes/creator/channel';
+import { rotate as rotateStreamKeyRoute } from '@/routes/creator/stream-key';
 import type { BroadcastSummary, Category } from '@/types';
 
 type CreatorChannel = {
@@ -46,6 +57,7 @@ export default function Dashboard({
     recentBroadcasts,
 }: Props) {
     const [, copy] = useClipboard();
+    const liveBroadcast = channel?.live_broadcast ?? null;
     const createForm = useForm({
         display_name: '',
         slug: '',
@@ -65,17 +77,17 @@ export default function Dashboard({
 
     function createChannel(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/creator/channel');
+        createForm.submit(storeChannelRoute());
     }
 
     function updateChannel(event: FormEvent) {
         event.preventDefault();
-        channelForm.patch('/creator/channel');
+        channelForm.submit(updateChannelRoute());
     }
 
     function createBroadcast(event: FormEvent) {
         event.preventDefault();
-        broadcastForm.post('/creator/broadcasts', {
+        broadcastForm.submit(storeBroadcastRoute(), {
             onSuccess: () => broadcastForm.reset('title', 'recording_enabled'),
         });
     }
@@ -96,10 +108,10 @@ export default function Dashboard({
                     </div>
                     {channel && (
                         <Button asChild variant="outline">
-                            <a href={`/channels/${channel.slug}`}>
+                            <Link href={showChannel(channel.slug)}>
                                 <Radio className="size-4" />
                                 View channel
-                            </a>
+                            </Link>
                         </Button>
                     )}
                 </div>
@@ -353,7 +365,9 @@ export default function Dashboard({
                                                     size="sm"
                                                     onClick={() =>
                                                         router.post(
-                                                            `/creator/broadcasts/${broadcast.id}/stop`,
+                                                            stopBroadcastRoute(
+                                                                broadcast.id,
+                                                            ),
                                                         )
                                                     }
                                                 >
@@ -404,9 +418,7 @@ export default function Dashboard({
                                     <Button
                                         variant="outline"
                                         onClick={() =>
-                                            router.post(
-                                                '/creator/stream-key/rotate',
-                                            )
+                                            router.post(rotateStreamKeyRoute())
                                         }
                                     >
                                         <RotateCw className="size-4" />
@@ -415,18 +427,17 @@ export default function Dashboard({
                                 </div>
                             </section>
 
-                            {channel.live_broadcast && (
+                            {liveBroadcast && (
                                 <section className="rounded-md border bg-card p-5">
                                     <h2 className="mb-3 font-semibold">
                                         Current live session
                                     </h2>
                                     <div className="space-y-2 text-sm">
                                         <div className="font-medium">
-                                            {channel.live_broadcast.title}
+                                            {liveBroadcast.title}
                                         </div>
                                         <div className="text-muted-foreground">
-                                            {channel.live_broadcast
-                                                .recording_enabled
+                                            {liveBroadcast.recording_enabled
                                                 ? 'Recording enabled'
                                                 : 'Live only'}
                                         </div>
@@ -435,7 +446,9 @@ export default function Dashboard({
                                             size="sm"
                                             onClick={() =>
                                                 router.post(
-                                                    `/creator/broadcasts/${channel.live_broadcast?.id}/stop`,
+                                                    stopBroadcastRoute(
+                                                        liveBroadcast.id,
+                                                    ),
                                                 )
                                             }
                                         >
@@ -457,7 +470,7 @@ Dashboard.layout = {
     breadcrumbs: [
         {
             title: 'Creator Studio',
-            href: '/dashboard',
+            href: dashboardRoute(),
         },
     ],
 };
