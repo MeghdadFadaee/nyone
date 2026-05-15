@@ -116,19 +116,18 @@ export default function Welcome({
                         {featuredChannel ? (
                             <Link
                                 href={showChannel(featuredChannel.slug)}
-                                className="group overflow-hidden rounded-md border bg-card text-card-foreground shadow-sm transition hover:border-primary/50"
+                                className="group min-w-0 overflow-hidden rounded-md border bg-card text-card-foreground shadow-sm transition hover:border-primary/50"
                             >
-                                <div className="grid md:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+                                <div className="grid min-w-0 lg:flex lg:min-h-[360px]">
                                     <Thumbnail
                                         channel={featuredChannel}
-                                        className="aspect-video md:min-h-[360px]"
+                                        className="aspect-video lg:aspect-auto lg:w-[58%] lg:flex-none"
                                         label="Featured live"
                                     />
-                                    <div className="grid content-between gap-6 p-5">
-                                        <div className="space-y-4">
-                                            <LiveBadge />
-                                            <div className="space-y-2">
-                                                <h1 className="text-2xl font-semibold md:text-4xl">
+                                    <div className="grid min-w-0 flex-1 content-between gap-6 p-5">
+                                        <div className="min-w-0 space-y-4">
+                                            <div className="min-w-0 space-y-2">
+                                                <h1 className="text-2xl font-semibold break-words md:text-4xl">
                                                     {featuredChannel.broadcast
                                                         ?.title ??
                                                         featuredChannel.display_name}
@@ -139,11 +138,11 @@ export default function Welcome({
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                            <span className="font-medium text-foreground">
+                                        <div className="flex min-w-0 flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                            <span className="min-w-0 font-medium break-words text-foreground">
                                                 {featuredChannel.display_name}
                                             </span>
-                                            <span>
+                                            <span className="min-w-0 break-words">
                                                 {featuredChannel.category
                                                     ?.name ?? 'Uncategorized'}
                                             </span>
@@ -154,7 +153,7 @@ export default function Welcome({
                                                 }{' '}
                                                 viewers
                                             </span>
-                                            <span className="ml-auto inline-flex items-center gap-1 text-primary">
+                                            <span className="inline-flex shrink-0 items-center gap-1 text-primary sm:ml-auto">
                                                 Watch
                                                 <ArrowRight className="size-4" />
                                             </span>
@@ -311,7 +310,6 @@ function StreamCard({ channel }: { channel: ChannelCard }) {
                             {channel.display_name} by {channel.owner.name}
                         </div>
                     </div>
-                    <LiveBadge compact />
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
                     <span className="truncate">
