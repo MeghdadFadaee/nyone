@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ########################################
-# Simple RTMP Streaming Client
+# RTMP Playlist Streamer (Single Session)
 # Requires: ffmpeg
 ########################################
 
@@ -11,13 +11,13 @@ RTMP_URL=""
 STREAM_KEY=""
 LOOP=false
 
+FILES=()
+
 VIDEO_BITRATE="2500k"
 VIDEO_BUFSIZE="5000k"
 AUDIO_BITRATE="128k"
 PRESET="veryfast"
 KEYFRAME_INTERVAL="60"
-
-FILES=()
 
 ########################################
 # Helpers
@@ -29,34 +29,15 @@ Usage:
   $0 --rtmp-url URL --stream-key KEY --files file1.mp4 [file2.mp4 ...]
 
 Options:
-  --rtmp-url              RTMP server URL
-                           Example: rtmp://server/live
-
+  --rtmp-url              Example: rtmp://server/live
   --stream-key            Stream key
-
   --files                 One or more video files
-
-  --loop                  Loop playlist forever
-
-  --preset                x264 preset
-                           Default: veryfast
-
-  --video-bitrate         Video bitrate
-                           Default: 2500k
-
-  --video-bufsize         Video buffer size
-                           Default: 5000k
-
-  --audio-bitrate         Audio bitrate
-                           Default: 128k
-
-  --keyframe-interval     GOP size
-                           Default: 60
+  --loop                  Infinite playlist loop
 
 Example:
   $0 \
-    --rtmp-url rtmp://live.example.com/app \
-    --stream-key abc123 \
+    --rtmp-url rtmp://server/live \
+    --stream-key mystream \
     --files intro.mp4 movie.mp4 \
     --loop
 EOF
@@ -67,7 +48,9 @@ log() {
 }
 
 cleanup() {
-    log "Stopping stream..."
+    log "Cleaning up..."
+
+    [[ -f "$PLAYLIST_FILE" ]] && rm -f "$PLAYLIST_FILE"
 
     if [[ -n "${FFMPEG_PID:-}" ]]; then
         kill "$FFMPEG_PID" 2>/dev/null || true
@@ -104,31 +87,6 @@ while [[ $# -gt 0 ]]; do
         --loop)
             LOOP=true
             shift
-            ;;
-
-        --preset)
-            PRESET="$2"
-            shift 2
-            ;;
-
-        --video-bitrate)
-            VIDEO_BITRATE="$2"
-            shift 2
-            ;;
-
-        --video-bufsize)
-            VIDEO_BUFSIZE="$2"
-            shift 2
-            ;;
-
-        --audio-bitrate)
-            AUDIO_BITRATE="$2"
-            shift 2
-            ;;
-
-        --keyframe-interval)
-            KEYFRAME_INTERVAL="$2"
-            shift 2
             ;;
 
         -h|--help)
@@ -182,54 +140,88 @@ done
 trap cleanup SIGINT SIGTERM
 
 ########################################
-# Main
+# Build playlist
+########################################
+
+PLAYLIST_FILE="$(mktemp)"
+
+for file in "${FILES[@]}"; do
+    ABS_PATH="$(realpath "$file")"
+
+    # Escape single quotes
+    ESCAPED_PATH="${ABS_PATH//\'/\'\\\'\'}"
+
+    echo "file '$ESCAPED_PATH'" >> "$PLAYLIST_FILE"
+done
+
+########################################
+# Build target URL
 ########################################
 
 TARGET_URL="${RTMP_URL%/}/${STREAM_KEY#/}"
 
-log "RTMP target: $TARGET_URL"
+log "RTMP Target: $TARGET_URL"
+log "Playlist File: $PLAYLIST_FILE"
 
-stream_file() {
-    local file="$1"
+########################################
+# FFmpeg command
+########################################
 
-    log "Streaming file: $file"
+FFMPEG_ARGS=(
+    -hide_banner
+    -loglevel info
 
-    ffmpeg \
-        -hide_banner \
-        -loglevel info \
-        -re \
-        -i "$file" \
-        -map 0:v:0 \
-        -map 0:a? \
-        -c:v libx264 \
-        -preset "$PRESET" \
-        -tune zerolatency \
-        -pix_fmt yuv420p \
-        -profile:v baseline \
-        -level 3.1 \
-        -b:v "$VIDEO_BITRATE" \
-        -maxrate "$VIDEO_BITRATE" \
-        -bufsize "$VIDEO_BUFSIZE" \
-        -g "$KEYFRAME_INTERVAL" \
-        -c:a aac \
-        -b:a "$AUDIO_BITRATE" \
-        -ar 44100 \
-        -ac 2 \
-        -f flv \
-        "$TARGET_URL" &
+    # Real-time playback
+    -re
 
-    FFMPEG_PID=$!
-    wait "$FFMPEG_PID"
-}
+    # Concat playlist
+    -f concat
+    -safe 0
+    -i "$PLAYLIST_FILE"
 
-while true; do
-    for file in "${FILES[@]}"; do
-        stream_file "$file"
-    done
+    # Video
+    -c:v libx264
+    -preset "$PRESET"
+    -tune zerolatency
+    -pix_fmt yuv420p
+    -profile:v baseline
+    -level 3.1
+    -b:v "$VIDEO_BITRATE"
+    -maxrate "$VIDEO_BITRATE"
+    -bufsize "$VIDEO_BUFSIZE"
+    -g "$KEYFRAME_INTERVAL"
 
-    if [[ "$LOOP" != true ]]; then
-        break
-    fi
-done
+    # Audio
+    -c:a aac
+    -b:a "$AUDIO_BITRATE"
+    -ar 44100
+    -ac 2
 
-log "Finished."
+    # Output
+    -f flv
+    "$TARGET_URL"
+)
+
+########################################
+# Infinite loop
+########################################
+
+if [[ "$LOOP" == true ]]; then
+    FFMPEG_ARGS=(
+        -stream_loop -1
+        "${FFMPEG_ARGS[@]}"
+    )
+fi
+
+########################################
+# Start streaming
+########################################
+
+log "Starting stream..."
+
+ffmpeg "${FFMPEG_ARGS[@]}" &
+FFMPEG_PID=$!
+
+wait "$FFMPEG_PID"
+
+cleanup

@@ -8,17 +8,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string[]]$Files,
 
-    [switch]$Loop,
-
-    [string]$Preset = "veryfast",
-
-    [string]$VideoBitrate = "2500k",
-
-    [string]$VideoBufsize = "5000k",
-
-    [string]$AudioBitrate = "128k",
-
-    [int]$KeyframeInterval = 60
+    [switch]$Loop
 )
 
 $ErrorActionPreference = "Stop"
@@ -34,71 +24,21 @@ function Write-Log {
     Write-Host "[$time] $Message"
 }
 
-function Test-Ffmpeg {
+function Test-FFmpeg {
     try {
         Get-Command ffmpeg -ErrorAction Stop | Out-Null
     }
     catch {
-        Write-Error "ffmpeg is not installed or not in PATH."
+        Write-Error "ffmpeg not found in PATH."
         exit 1
     }
-}
-
-function Build-TargetUrl {
-    $base = $RtmpUrl.TrimEnd('/')
-    $key = $StreamKey.TrimStart('/')
-
-    return "$base/$key"
-}
-
-function Stream-File {
-    param(
-        [string]$File,
-        [string]$TargetUrl
-    )
-
-    Write-Log "Streaming file: $File"
-
-    $arguments = @(
-        "-hide_banner"
-        "-loglevel", "info"
-        "-re"
-        "-i", $File
-        "-map", "0:v:0"
-        "-map", "0:a?"
-        "-c:v", "libx264"
-        "-preset", $Preset
-        "-tune", "zerolatency"
-        "-pix_fmt", "yuv420p"
-        "-profile:v", "baseline"
-        "-level", "3.1"
-        "-b:v", $VideoBitrate
-        "-maxrate", $VideoBitrate
-        "-bufsize", $VideoBufsize
-        "-g", $KeyframeInterval
-        "-c:a", "aac"
-        "-b:a", $AudioBitrate
-        "-ar", "44100"
-        "-ac", "2"
-        "-f", "flv"
-        $TargetUrl
-    )
-
-    $process = Start-Process `
-        -FilePath "ffmpeg" `
-        -ArgumentList $arguments `
-        -NoNewWindow `
-        -PassThru `
-        -Wait
-
-    return $process.ExitCode
 }
 
 ##################################################
 # Validation
 ##################################################
 
-Test-Ffmpeg
+Test-FFmpeg
 
 foreach ($file in $Files) {
     if (-not (Test-Path $file)) {
@@ -108,31 +48,98 @@ foreach ($file in $Files) {
 }
 
 ##################################################
-# Main
+# Build playlist
 ##################################################
 
-$targetUrl = Build-TargetUrl
+$playlistFile = Join-Path $env:TEMP "ffmpeg_playlist.txt"
 
-Write-Log "RTMP target: $targetUrl"
+if (Test-Path $playlistFile) {
+    Remove-Item $playlistFile -Force
+}
+
+foreach ($file in $Files) {
+
+    $fullPath = (Resolve-Path $file).Path.Replace("'", "''")
+
+    Add-Content -Path $playlistFile -Value "file '$fullPath'"
+}
+
+##################################################
+# RTMP URL
+##################################################
+
+$targetUrl = "$($RtmpUrl.TrimEnd('/'))/$($StreamKey.TrimStart('/'))"
+
+Write-Log "RTMP Target: $targetUrl"
+Write-Log "Playlist: $playlistFile"
+
+##################################################
+# FFmpeg args
+##################################################
+
+$arguments = @(
+    "-hide_banner"
+    "-loglevel", "info"
+
+    # Real-time mode
+    "-re"
+
+    # Infinite loop playlist
+    "-stream_loop", "-1"
+
+    # Concat playlist
+    "-f", "concat"
+    "-safe", "0"
+    "-i", $playlistFile
+
+    # Video
+    "-c:v", "libx264"
+    "-preset", "veryfast"
+    "-tune", "zerolatency"
+    "-pix_fmt", "yuv420p"
+    "-profile:v", "baseline"
+    "-level", "3.1"
+    "-b:v", "2500k"
+    "-maxrate", "2500k"
+    "-bufsize", "5000k"
+    "-g", "60"
+
+    # Audio
+    "-c:a", "aac"
+    "-b:a", "128k"
+    "-ar", "44100"
+    "-ac", "2"
+
+    # Output
+    "-f", "flv"
+    $targetUrl
+)
+
+if (-not $Loop) {
+    # Remove infinite loop if user does not want looping
+    $arguments = $arguments | Where-Object { $_ -ne "-1" }
+}
+
+##################################################
+# Run ffmpeg
+##################################################
 
 try {
-    do {
-        foreach ($file in $Files) {
 
-            $exitCode = Stream-File `
-                -File $file `
-                -TargetUrl $targetUrl
+    Write-Log "Starting stream..."
 
-            if ($exitCode -ne 0) {
-                Write-Log "ffmpeg exited with code $exitCode"
-            }
-        }
-
-    } while ($Loop)
+    Start-Process `
+        -FilePath "ffmpeg" `
+        -ArgumentList $arguments `
+        -NoNewWindow `
+        -Wait
 
 }
-catch {
-    Write-Log "Streaming interrupted."
+finally {
+
+    if (Test-Path $playlistFile) {
+        Remove-Item $playlistFile -Force
+    }
 }
 
 Write-Log "Finished."
