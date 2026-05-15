@@ -6,6 +6,7 @@ use App\Models\Broadcast;
 use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ViewerInteractionTest extends TestCase
@@ -57,5 +58,24 @@ class ViewerInteractionTest extends TestCase
         $this->post(route('channels.chat.store', $channel), [
             'body' => 'No auth',
         ])->assertRedirect(route('login'));
+    }
+
+    public function test_channel_page_exposes_display_media_props(): void
+    {
+        $channel = Channel::factory()->create([
+            'slug' => 'demo',
+            'avatar_path' => 'channels/demo/avatar.jpg',
+            'banner_path' => 'channels/demo/banner.jpg',
+            'thumbnail_path' => 'channels/demo/thumb.jpg',
+        ]);
+
+        $this->get(route('channels.show', $channel))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('channels/show')
+                ->where('channel.avatar_url', '/storage/channels/demo/avatar.jpg')
+                ->where('channel.banner_url', '/storage/channels/demo/banner.jpg')
+                ->where('channel.thumbnail_url', '/storage/channels/demo/thumb.jpg'),
+            );
     }
 }

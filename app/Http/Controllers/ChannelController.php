@@ -6,6 +6,7 @@ use App\Models\Channel;
 use App\Models\ChatMessage;
 use App\Models\Vod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,6 +27,9 @@ class ChannelController extends Controller
                 'slug' => $channel->slug,
                 'display_name' => $channel->display_name,
                 'description' => $channel->description,
+                'avatar_url' => $this->mediaUrl($channel->avatar_path),
+                'banner_url' => $this->mediaUrl($channel->banner_path),
+                'thumbnail_url' => $this->mediaUrl($channel->thumbnail_path),
                 'is_live' => $channel->is_live,
                 'viewer_count' => $channel->viewer_count,
                 'followers_count' => $channel->follows_count,
@@ -83,5 +87,10 @@ class ChannelController extends Controller
                 ? $channel->follows()->where('user_id', $request->user()->id)->exists()
                 : false,
         ]);
+    }
+
+    private function mediaUrl(?string $path): ?string
+    {
+        return $path ? Storage::url($path) : null;
     }
 }

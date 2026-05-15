@@ -6,6 +6,7 @@ use App\Models\Broadcast;
 use App\Models\Channel;
 use App\Models\User;
 use App\Models\Vod;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,6 +35,7 @@ class AdminDashboardController extends Controller
                         'id' => $broadcast->channel->id,
                         'slug' => $broadcast->channel->slug,
                         'display_name' => $broadcast->channel->display_name,
+                        'thumbnail_url' => $this->mediaUrl($broadcast->channel->thumbnail_path),
                         'owner' => $broadcast->channel->user->name,
                     ],
                 ]),
@@ -46,6 +48,8 @@ class AdminDashboardController extends Controller
                     'id' => $channel->id,
                     'slug' => $channel->slug,
                     'display_name' => $channel->display_name,
+                    'avatar_url' => $this->mediaUrl($channel->avatar_path),
+                    'thumbnail_url' => $this->mediaUrl($channel->thumbnail_path),
                     'is_live' => $channel->is_live,
                     'suspended_at' => $channel->suspended_at?->toIso8601String(),
                     'owner' => [
@@ -54,5 +58,10 @@ class AdminDashboardController extends Controller
                     ],
                 ]),
         ]);
+    }
+
+    private function mediaUrl(?string $path): ?string
+    {
+        return $path ? Storage::url($path) : null;
     }
 }

@@ -10,6 +10,9 @@ export type ChannelCard = {
     display_name: string;
     description: string | null;
     thumbnail_path: string | null;
+    thumbnail_url: string | null;
+    avatar_url: string | null;
+    banner_url: string | null;
     viewer_count: number;
     followers_count: number;
     category: Category | null;
@@ -29,6 +32,9 @@ export type ChannelDetail = {
     slug: string;
     display_name: string;
     description: string | null;
+    avatar_url: string | null;
+    banner_url: string | null;
+    thumbnail_url: string | null;
     is_live: boolean;
     viewer_count: number;
     followers_count: number;

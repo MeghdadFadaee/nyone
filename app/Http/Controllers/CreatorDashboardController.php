@@ -8,6 +8,7 @@ use App\Models\Channel;
 use App\Services\Streaming\StreamKeyManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -165,6 +166,9 @@ class CreatorDashboardController extends Controller
             'slug' => $channel->slug,
             'display_name' => $channel->display_name,
             'description' => $channel->description,
+            'avatar_url' => $this->mediaUrl($channel->avatar_path),
+            'banner_url' => $this->mediaUrl($channel->banner_path),
+            'thumbnail_url' => $this->mediaUrl($channel->thumbnail_path),
             'is_live' => $channel->is_live,
             'viewer_count' => $channel->viewer_count,
             'stream_key_last_used_at' => $channel->streamKey?->last_used_at?->toIso8601String(),
@@ -178,5 +182,10 @@ class CreatorDashboardController extends Controller
                 'started_at' => $channel->liveBroadcast->started_at?->toIso8601String(),
             ] : null,
         ];
+    }
+
+    private function mediaUrl(?string $path): ?string
+    {
+        return $path ? Storage::url($path) : null;
     }
 }
