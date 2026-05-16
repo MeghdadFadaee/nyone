@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Broadcast;
 use App\Models\Channel;
+use App\Models\PlatformSetting;
 use App\Models\User;
 use App\Models\Vod;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +21,10 @@ class AdminDashboardController extends Controller
                 'channels' => Channel::query()->count(),
                 'live_channels' => Channel::query()->where('is_live', true)->count(),
                 'vods' => Vod::query()->count(),
+                'creator_access_grants' => User::query()->where('can_create_channel', true)->count(),
+            ],
+            'channelCreationPolicy' => [
+                'channel_creation_open' => PlatformSetting::current()->channel_creation_open,
             ],
             'liveBroadcasts' => Broadcast::query()
                 ->where('status', Broadcast::STATUS_LIVE)
@@ -56,6 +61,25 @@ class AdminDashboardController extends Controller
                         'id' => $channel->user->id,
                         'name' => $channel->user->name,
                     ],
+                ]),
+            'users' => User::query()
+                ->with('channel')
+                ->latest('id')
+                ->limit(50)
+                ->get()
+                ->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'is_admin' => $user->is_admin,
+                    'can_create_channel' => $user->can_create_channel,
+                    'suspended_at' => $user->suspended_at?->toIso8601String(),
+                    'created_at' => $user->created_at?->toIso8601String(),
+                    'channel' => $user->channel ? [
+                        'id' => $user->channel->id,
+                        'slug' => $user->channel->slug,
+                        'display_name' => $user->channel->display_name,
+                    ] : null,
                 ]),
         ]);
     }

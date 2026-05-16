@@ -25,6 +25,7 @@ class CreatorDashboardController extends Controller
 
         return Inertia::render('dashboard', [
             'channel' => $channel ? $this->channelPayload($channel) : null,
+            'canCreateChannel' => $request->user()->canCreateChannel(),
             'plainStreamKey' => session('plain_stream_key'),
             'streaming' => [
                 'ingestServer' => $streamKeys->ingestServer(),
@@ -57,6 +58,7 @@ class CreatorDashboardController extends Controller
     public function storeChannel(Request $request, StreamKeyManager $streamKeys): RedirectResponse
     {
         abort_if($request->user()->channel()->exists(), 422, 'This account already owns a channel.');
+        abort_unless($request->user()->canCreateChannel(), 403, 'An admin must enable channel creation for this account.');
 
         $validated = $request->validate([
             'display_name' => ['required', 'string', 'max:80'],

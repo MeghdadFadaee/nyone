@@ -1,6 +1,23 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Ban, Radio, Shield, StopCircle, Undo2, Users } from 'lucide-react';
+import {
+    Ban,
+    KeyRound,
+    Lock,
+    Radio,
+    Shield,
+    StopCircle,
+    Undo2,
+    Unlock,
+    UserCheck,
+    Users,
+    UserX,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
+import {
+    updateDefault as updateChannelCreationDefault,
+    updateUser as updateUserCreatorAccess,
+} from '@/actions/App/Http/Controllers/AdminChannelCreationController';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -42,15 +59,35 @@ type AdminChannel = {
     };
 };
 
+type AdminUser = {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+    can_create_channel: boolean;
+    suspended_at: string | null;
+    created_at: string | null;
+    channel: {
+        id: number;
+        slug: string;
+        display_name: string;
+    } | null;
+};
+
 type Props = {
     stats: {
         users: number;
         channels: number;
         live_channels: number;
         vods: number;
+        creator_access_grants: number;
+    };
+    channelCreationPolicy: {
+        channel_creation_open: boolean;
     };
     liveBroadcasts: LiveBroadcast[];
     channels: AdminChannel[];
+    users: AdminUser[];
 };
 
 type ModerationAction =
@@ -61,10 +98,36 @@ type ModerationAction =
 
 export default function AdminDashboard({
     stats,
+    channelCreationPolicy,
     liveBroadcasts,
     channels,
+    users,
 }: Props) {
     const [action, setAction] = useState<ModerationAction>(null);
+
+    function setChannelCreationDefault(channelCreationOpen: boolean) {
+        router.patch(
+            updateChannelCreationDefault(),
+            {
+                channel_creation_open: channelCreationOpen,
+            },
+            {
+                preserveScroll: true,
+            },
+        );
+    }
+
+    function setUserCreatorAccess(user: AdminUser, canCreateChannel: boolean) {
+        router.patch(
+            updateUserCreatorAccess(user.id),
+            {
+                can_create_channel: canCreateChannel,
+            },
+            {
+                preserveScroll: true,
+            },
+        );
+    }
 
     function confirmAction() {
         if (!action) {
@@ -112,7 +175,7 @@ export default function AdminDashboard({
                     </div>
                 </div>
 
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     <Stat icon={Users} label="Users" value={stats.users} />
                     <Stat
                         icon={Radio}
@@ -125,7 +188,71 @@ export default function AdminDashboard({
                         value={stats.live_channels}
                         live
                     />
+                    <Stat
+                        icon={UserCheck}
+                        label="Creator grants"
+                        value={stats.creator_access_grants}
+                    />
                     <Stat icon={Shield} label="VODs" value={stats.vods} />
+                </section>
+
+                <section className="rounded-md border bg-card p-5 shadow-sm">
+                    <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-start gap-2">
+                            <KeyRound className="mt-0.5 size-5 text-primary" />
+                            <div>
+                                <h2 className="font-semibold">
+                                    Channel creation access
+                                </h2>
+                                <p className="text-sm text-muted-foreground">
+                                    Control who can create a creator channel.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Button
+                                variant={
+                                    channelCreationPolicy.channel_creation_open
+                                        ? 'outline'
+                                        : 'default'
+                                }
+                                size="sm"
+                                onClick={() => setChannelCreationDefault(false)}
+                            >
+                                <Lock className="size-4" />
+                                Approval only
+                            </Button>
+                            <Button
+                                variant={
+                                    channelCreationPolicy.channel_creation_open
+                                        ? 'default'
+                                        : 'outline'
+                                }
+                                size="sm"
+                                onClick={() => setChannelCreationDefault(true)}
+                            >
+                                <Unlock className="size-4" />
+                                Open to all
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                        {users.map((user) => (
+                            <CreatorAccessRow
+                                key={user.id}
+                                user={user}
+                                defaultOpen={
+                                    channelCreationPolicy.channel_creation_open
+                                }
+                                onChange={(canCreateChannel) =>
+                                    setUserCreatorAccess(user, canCreateChannel)
+                                }
+                            />
+                        ))}
+                        {users.length === 0 && (
+                            <EmptyState text="No users found." />
+                        )}
+                    </div>
                 </section>
 
                 <section className="rounded-md border bg-card p-5 shadow-sm">
@@ -317,7 +444,7 @@ function Stat({
     value,
     live = false,
 }: {
-    icon: typeof Radio;
+    icon: LucideIcon;
     label: string;
     value: number;
     live?: boolean;
@@ -329,6 +456,78 @@ function Stat({
                 <Icon className={live ? 'text-live size-4' : 'size-4'} />
             </div>
             <div className="mt-2 text-2xl font-semibold">{value}</div>
+        </div>
+    );
+}
+
+function CreatorAccessRow({
+    user,
+    defaultOpen,
+    onChange,
+}: {
+    user: AdminUser;
+    defaultOpen: boolean;
+    onChange: (canCreateChannel: boolean) => void;
+}) {
+    const effectiveAccess = defaultOpen || user.can_create_channel;
+
+    return (
+        <div className="grid gap-3 rounded-md border bg-background p-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+            <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium">{user.name}</span>
+                    {user.is_admin && (
+                        <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
+                            ADMIN
+                        </span>
+                    )}
+                    {user.suspended_at && (
+                        <span className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                            SUSPENDED
+                        </span>
+                    )}
+                    <span
+                        className={
+                            effectiveAccess
+                                ? 'border-success/40 bg-success/10 text-success rounded-md border px-2 py-0.5 text-xs font-medium'
+                                : 'border-warning/40 bg-warning/10 text-warning rounded-md border px-2 py-0.5 text-xs font-medium'
+                        }
+                    >
+                        {effectiveAccess ? 'CAN CREATE' : 'NEEDS APPROVAL'}
+                    </span>
+                    {defaultOpen && !user.can_create_channel && (
+                        <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
+                            DEFAULT
+                        </span>
+                    )}
+                </div>
+                <div className="mt-1 truncate text-sm text-muted-foreground">
+                    {user.email}
+                    {user.channel && (
+                        <>
+                            {' - '}
+                            <Link
+                                href={showChannel(user.channel.slug)}
+                                className="text-primary hover:underline"
+                            >
+                                {user.channel.display_name}
+                            </Link>
+                        </>
+                    )}
+                </div>
+            </div>
+            <Button
+                variant={user.can_create_channel ? 'outline' : 'default'}
+                size="sm"
+                onClick={() => onChange(!user.can_create_channel)}
+            >
+                {user.can_create_channel ? (
+                    <UserX className="size-4" />
+                ) : (
+                    <UserCheck className="size-4" />
+                )}
+                {user.can_create_channel ? 'Remove grant' : 'Grant'}
+            </Button>
         </div>
     );
 }

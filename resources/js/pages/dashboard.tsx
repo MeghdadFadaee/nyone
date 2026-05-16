@@ -56,6 +56,7 @@ type CreatorChannel = {
 
 type Props = {
     channel: CreatorChannel | null;
+    canCreateChannel: boolean;
     plainStreamKey: string | null;
     streaming: {
         ingestServer: string;
@@ -67,6 +68,7 @@ type Props = {
 
 export default function Dashboard({
     channel,
+    canCreateChannel,
     plainStreamKey,
     streaming,
     categories,
@@ -190,88 +192,112 @@ export default function Dashboard({
                 </div>
 
                 {!channel ? (
-                    <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-                        <Panel
-                            title="Create your channel"
-                            description="Each account can own one public channel in this version."
-                        >
-                            <form
-                                onSubmit={createChannel}
-                                className="grid gap-4"
+                    canCreateChannel ? (
+                        <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+                            <Panel
+                                title="Create your channel"
+                                description="Each account can own one public channel in this version."
                             >
-                                <Field
-                                    label="Display name"
-                                    error={createForm.errors.display_name}
+                                <form
+                                    onSubmit={createChannel}
+                                    className="grid gap-4"
                                 >
-                                    <Input
-                                        value={createForm.data.display_name}
-                                        onChange={(event) =>
-                                            createForm.setData(
-                                                'display_name',
-                                                event.target.value,
-                                            )
-                                        }
-                                        placeholder="Nyone Live"
-                                    />
-                                </Field>
-                                <Field
-                                    label="Slug"
-                                    error={createForm.errors.slug}
-                                >
-                                    <Input
-                                        value={createForm.data.slug}
-                                        onChange={(event) =>
-                                            createForm.setData(
-                                                'slug',
-                                                event.target.value.toLowerCase(),
-                                            )
-                                        }
-                                        placeholder="nyone-live"
-                                    />
-                                </Field>
-                                <Field label="Category">
-                                    <CategorySelect
-                                        categories={categories}
-                                        value={createForm.data.category_id}
-                                        onChange={(value) =>
-                                            createForm.setData(
-                                                'category_id',
-                                                value,
-                                            )
-                                        }
-                                    />
-                                </Field>
-                                <Field
-                                    label="Description"
-                                    error={createForm.errors.description}
-                                >
-                                    <textarea
-                                        value={createForm.data.description}
-                                        onChange={(event) =>
-                                            createForm.setData(
-                                                'description',
-                                                event.target.value,
-                                            )
-                                        }
-                                        className="min-h-28 rounded-md border bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                                    />
-                                </Field>
-                                <Button
-                                    type="submit"
-                                    disabled={createForm.processing}
-                                >
-                                    <Save className="size-4" />
-                                    Create channel
-                                </Button>
-                            </form>
-                        </Panel>
-                        <Panel title="OBS readiness">
-                            <ReadinessRow done label="Channel metadata" />
-                            <ReadinessRow label="Private stream key" />
-                            <ReadinessRow label="Prepared broadcast" />
-                            <ReadinessRow label="Live ingest signal" />
-                        </Panel>
-                    </section>
+                                    <Field
+                                        label="Display name"
+                                        error={createForm.errors.display_name}
+                                    >
+                                        <Input
+                                            value={createForm.data.display_name}
+                                            onChange={(event) =>
+                                                createForm.setData(
+                                                    'display_name',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="Nyone Live"
+                                        />
+                                    </Field>
+                                    <Field
+                                        label="Slug"
+                                        error={createForm.errors.slug}
+                                    >
+                                        <Input
+                                            value={createForm.data.slug}
+                                            onChange={(event) =>
+                                                createForm.setData(
+                                                    'slug',
+                                                    event.target.value.toLowerCase(),
+                                                )
+                                            }
+                                            placeholder="nyone-live"
+                                        />
+                                    </Field>
+                                    <Field label="Category">
+                                        <CategorySelect
+                                            categories={categories}
+                                            value={createForm.data.category_id}
+                                            onChange={(value) =>
+                                                createForm.setData(
+                                                    'category_id',
+                                                    value,
+                                                )
+                                            }
+                                        />
+                                    </Field>
+                                    <Field
+                                        label="Description"
+                                        error={createForm.errors.description}
+                                    >
+                                        <textarea
+                                            value={createForm.data.description}
+                                            onChange={(event) =>
+                                                createForm.setData(
+                                                    'description',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="min-h-28 rounded-md border bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                                        />
+                                    </Field>
+                                    <Button
+                                        type="submit"
+                                        disabled={createForm.processing}
+                                    >
+                                        <Save className="size-4" />
+                                        Create channel
+                                    </Button>
+                                </form>
+                            </Panel>
+                            <Panel title="OBS readiness">
+                                <ReadinessRow done label="Channel metadata" />
+                                <ReadinessRow label="Private stream key" />
+                                <ReadinessRow label="Prepared broadcast" />
+                                <ReadinessRow label="Live ingest signal" />
+                            </Panel>
+                        </section>
+                    ) : (
+                        <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+                            <Panel
+                                title="Channel creation requires approval"
+                                description="An admin can grant creator access from the admin console."
+                            >
+                                <div className="border-warning/40 bg-warning/10 text-warning flex items-start gap-3 rounded-md border p-3 text-sm">
+                                    <ShieldAlert className="mt-0.5 size-4 shrink-0" />
+                                    <span>
+                                        This account can browse and follow
+                                        channels, but cannot create a channel
+                                        yet.
+                                    </span>
+                                </div>
+                            </Panel>
+                            <Panel title="OBS readiness">
+                                <ReadinessRow label="Channel metadata" />
+                                <ReadinessRow label="Private stream key" />
+                                <ReadinessRow label="Prepared broadcast" />
+                                <ReadinessRow label="Live ingest signal" />
+                            </Panel>
+                        </section>
+                    )
                 ) : (
                     <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
                         <div className="grid min-w-0 gap-6">

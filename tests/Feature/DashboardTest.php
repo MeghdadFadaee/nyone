@@ -30,6 +30,19 @@ class DashboardTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_creator_dashboard_exposes_channel_creation_access(): void
+    {
+        $user = User::factory()->create(['can_create_channel' => true]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('dashboard')
+                ->where('canCreateChannel', true),
+            );
+    }
+
     public function test_home_page_exposes_channel_display_media_props(): void
     {
         $channel = Channel::factory()->create([

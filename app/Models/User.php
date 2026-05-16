@@ -13,12 +13,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'is_admin', 'suspended_at'])]
+#[Fillable(['name', 'email', 'password', 'is_admin', 'can_create_channel', 'suspended_at'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
+
+    protected $attributes = [
+        'can_create_channel' => false,
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -32,6 +36,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'is_admin' => 'boolean',
+            'can_create_channel' => 'boolean',
             'suspended_at' => 'datetime',
         ];
     }
@@ -49,5 +54,10 @@ class User extends Authenticatable
     public function isSuspended(): bool
     {
         return $this->suspended_at !== null;
+    }
+
+    public function canCreateChannel(): bool
+    {
+        return $this->can_create_channel || PlatformSetting::current()->channel_creation_open;
     }
 }

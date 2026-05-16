@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminChannelCreationController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminModerationController;
 use App\Http\Controllers\ChannelController;
@@ -36,8 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::patch('channel-creation', [AdminChannelCreationController::class, 'updateDefault'])->name('channel-creation.update');
         Route::post('channels/{channel:slug}/suspend', [AdminModerationController::class, 'suspendChannel'])->name('channels.suspend');
         Route::post('channels/{channel:slug}/restore', [AdminModerationController::class, 'restoreChannel'])->name('channels.restore');
+        Route::patch('users/{user}/creator-access', [AdminChannelCreationController::class, 'updateUser'])->name('users.creator-access.update');
         Route::post('users/{user}/suspend', [AdminModerationController::class, 'suspendUser'])->name('users.suspend');
         Route::post('broadcasts/{broadcast}/stop', [AdminModerationController::class, 'stopBroadcast'])->name('broadcasts.stop');
         Route::delete('vods/{vod}', [AdminModerationController::class, 'deleteVod'])->name('vods.destroy');
