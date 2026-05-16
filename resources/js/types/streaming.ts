@@ -72,5 +72,6 @@ export type ChatMessage = {
     user: {
         id: number;
         name: string;
+        avatar_url: string | null;
     };
 };

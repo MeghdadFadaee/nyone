@@ -30,7 +30,9 @@ class ViewerInteractionTest extends TestCase
 
     public function test_authenticated_user_can_chat_while_channel_is_live(): void
     {
-        $viewer = User::factory()->create();
+        $viewer = User::factory()->create([
+            'avatar_path' => 'users/demo/avatar.jpg',
+        ]);
         $channel = Channel::factory()->create(['slug' => 'demo', 'is_live' => true]);
         $broadcast = Broadcast::factory()->for($channel)->live()->create();
         $channel->forceFill(['live_broadcast_id' => $broadcast->id])->save();
@@ -47,6 +49,14 @@ class ViewerInteractionTest extends TestCase
             'user_id' => $viewer->id,
             'body' => 'Hello chat',
         ]);
+
+        $this->actingAs($viewer)
+            ->get(route('channels.show', $channel))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('channels/show')
+                ->where('chatMessages.0.user.avatar_url', '/storage/users/demo/avatar.jpg'),
+            );
     }
 
     public function test_anonymous_users_can_watch_channel_page_but_not_chat(): void

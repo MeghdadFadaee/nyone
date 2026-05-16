@@ -10,6 +10,11 @@ import {
 } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import {
+    Avatar as ChatAvatar,
+    AvatarFallback,
+    AvatarImage,
+} from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,6 +25,7 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { VideoPlayer } from '@/components/video-player';
+import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { home, login } from '@/routes';
 import { follow, unfollow } from '@/routes/channels';
@@ -278,6 +284,8 @@ function ChatPanel({
     onSubmit: (event: FormEvent) => void;
     compact?: boolean;
 }) {
+    const getInitials = useInitials();
+
     return (
         <div className="flex min-h-0 w-full flex-col">
             <div
@@ -294,11 +302,28 @@ function ChatPanel({
             </div>
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
                 {messages.map((message) => (
-                    <div key={message.id} className="text-sm">
-                        <span className="font-medium">{message.user.name}</span>
-                        <span className="ml-2 text-muted-foreground">
-                            {message.body}
-                        </span>
+                    <div
+                        key={message.id}
+                        className="flex min-w-0 gap-2 text-sm"
+                    >
+                        <ChatAvatar className="mt-0.5 size-7 rounded-md">
+                            <AvatarImage
+                                src={message.user.avatar_url ?? undefined}
+                                alt={message.user.name}
+                                className="object-cover"
+                            />
+                            <AvatarFallback className="rounded-md bg-secondary text-[11px] font-semibold text-secondary-foreground">
+                                {getInitials(message.user.name)}
+                            </AvatarFallback>
+                        </ChatAvatar>
+                        <div className="min-w-0 flex-1">
+                            <div className="truncate font-medium">
+                                {message.user.name}
+                            </div>
+                            <div className="break-words text-muted-foreground">
+                                {message.body}
+                            </div>
+                        </div>
                     </div>
                 ))}
                 {messages.length === 0 && (

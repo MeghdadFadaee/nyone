@@ -81,6 +81,7 @@ class ChannelController extends Controller
                     'user' => [
                         'id' => $message->user->id,
                         'name' => $message->user->name,
+                        'avatar_url' => $message->user->avatar,
                     ],
                 ]),
             'isFollowing' => $request->user()
