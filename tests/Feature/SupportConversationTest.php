@@ -30,14 +30,15 @@ class SupportConversationTest extends TestCase
         Storage::fake('local');
 
         $user = User::factory()->create(['can_create_channel' => false]);
-        $attachment = UploadedFile::fake()->create('channel-request.pdf', 12, 'application/pdf');
+        $attachment = UploadedFile::fake()->create('channel-request.pdf', 204800, 'application/pdf');
+        $jsonAttachment = UploadedFile::fake()->create('payload.json', 1, 'application/json');
 
         $this->actingAs($user)
             ->post(route('support.store'), [
                 'category' => SupportConversation::CATEGORY_CHANNEL_REQUEST,
                 'subject' => 'Please approve my creator channel',
                 'body' => 'I want to start streaming tutorials.',
-                'attachments' => [$attachment],
+                'attachments' => [$attachment, $jsonAttachment],
             ])
             ->assertRedirect()
             ->assertSessionHasNoErrors();
@@ -51,6 +52,11 @@ class SupportConversationTest extends TestCase
         $this->assertSame('I want to start streaming tutorials.', $message->body);
         $this->assertFalse($user->refresh()->can_create_channel);
         $this->assertSame('channel-request.pdf', $storedAttachment->original_name);
+        $this->assertDatabaseHas('support_attachments', [
+            'support_message_id' => $message->id,
+            'original_name' => 'payload.json',
+            'mime_type' => 'application/json',
+        ]);
         Storage::disk('local')->assertExists($storedAttachment->path);
     }
 
@@ -66,7 +72,29 @@ class SupportConversationTest extends TestCase
                 'body' => '',
                 'attachments' => [$attachment],
             ])
-            ->assertSessionHasErrors(['category', 'subject', 'body', 'attachments.0']);
+            ->assertSessionHasErrors([
+                'category',
+                'subject',
+                'body',
+                'attachments.0' => 'Unsupported attachment type. Upload media, PDF, text/data, Office, OpenDocument, or archive files.',
+            ]);
+    }
+
+    public function test_media_attachment_must_not_exceed_two_hundred_megabytes(): void
+    {
+        $user = User::factory()->create();
+        $attachment = UploadedFile::fake()->image('too-large.jpg')->size(204801);
+
+        $this->actingAs($user)
+            ->post(route('support.store'), [
+                'category' => SupportConversation::CATEGORY_BUG,
+                'subject' => 'Large upload',
+                'body' => 'This screenshot is too large.',
+                'attachments' => [$attachment],
+            ])
+            ->assertSessionHasErrors([
+                'attachments.0' => 'Attachments must be 200 MB or smaller.',
+            ]);
     }
 
     public function test_user_can_view_and_reply_to_own_conversation(): void

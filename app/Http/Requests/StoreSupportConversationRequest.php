@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\SupportConversation;
+use App\Rules\SupportAttachmentFile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class StoreSupportConversationRequest extends FormRequest
             'subject' => ['required', 'string', 'max:120'],
             'body' => ['required', 'string', 'max:2000'],
             'attachments' => ['nullable', 'array', 'max:3'],
-            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,pdf,txt,log,json,zip'],
+            'attachments.*' => [new SupportAttachmentFile],
         ];
     }
 }

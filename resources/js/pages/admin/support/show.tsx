@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
 import { useRef } from 'react';
+import { SupportAttachmentErrors } from '@/components/support-attachment-errors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -142,10 +143,7 @@ export default function AdminSupportShow({ conversation }: Props) {
                                         maxLength={2000}
                                     />
                                 </Field>
-                                <Field
-                                    label="Attachments"
-                                    error={form.errors.attachments}
-                                >
+                                <Field label="Attachments">
                                     <Input
                                         ref={fileInputRef}
                                         type="file"
@@ -178,6 +176,9 @@ export default function AdminSupportShow({ conversation }: Props) {
                                             className="h-1.5 w-full"
                                         />
                                     )}
+                                    <SupportAttachmentErrors
+                                        errors={form.errors}
+                                    />
                                 </Field>
                                 <Button
                                     type="submit"

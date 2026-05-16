@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { FileUp, LifeBuoy, MessageSquare, Send } from 'lucide-react';
 import type { FormEvent, ReactNode } from 'react';
 import { useRef } from 'react';
+import { SupportAttachmentErrors } from '@/components/support-attachment-errors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -123,7 +124,7 @@ export default function SupportIndex({ categories, conversations }: Props) {
                     <div className="mb-5">
                         <h2 className="font-semibold">New conversation</h2>
                         <p className="text-sm text-muted-foreground">
-                            Attach up to 3 files, 10 MB each.
+                            Attach up to 3 files, 200 MB each.
                         </p>
                     </div>
                     <form onSubmit={submit} className="grid gap-4">
@@ -164,10 +165,7 @@ export default function SupportIndex({ categories, conversations }: Props) {
                                 maxLength={2000}
                             />
                         </Field>
-                        <Field
-                            label="Attachments"
-                            error={form.errors.attachments}
-                        >
+                        <Field label="Attachments">
                             <Input
                                 ref={fileInputRef}
                                 type="file"
@@ -198,6 +196,7 @@ export default function SupportIndex({ categories, conversations }: Props) {
                                     className="h-1.5 w-full"
                                 />
                             )}
+                            <SupportAttachmentErrors errors={form.errors} />
                         </Field>
                         <Button type="submit" disabled={form.processing}>
                             <Send className="size-4" />

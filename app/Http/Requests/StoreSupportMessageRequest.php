@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\SupportAttachmentFile;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSupportMessageRequest extends FormRequest
@@ -12,14 +13,14 @@ class StoreSupportMessageRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
             'body' => ['required', 'string', 'max:2000'],
             'attachments' => ['nullable', 'array', 'max:3'],
-            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,pdf,txt,log,json,zip'],
+            'attachments.*' => [new SupportAttachmentFile],
         ];
     }
 }
