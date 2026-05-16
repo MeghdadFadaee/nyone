@@ -37,6 +37,7 @@ class Broadcast extends Model
     {
         return [
             'recording_enabled' => 'boolean',
+            'viewer_peak' => 'integer',
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
         ];

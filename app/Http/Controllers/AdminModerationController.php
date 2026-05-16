@@ -7,12 +7,13 @@ use App\Models\Broadcast;
 use App\Models\Channel;
 use App\Models\User;
 use App\Models\Vod;
+use App\Services\Streaming\ViewerCountStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AdminModerationController extends Controller
 {
-    public function suspendChannel(Request $request, Channel $channel): RedirectResponse
+    public function suspendChannel(Request $request, Channel $channel, ViewerCountStore $viewerCounts): RedirectResponse
     {
         $channel->forceFill([
             'suspended_at' => now(),
@@ -20,6 +21,7 @@ class AdminModerationController extends Controller
             'live_broadcast_id' => null,
             'viewer_count' => 0,
         ])->save();
+        $viewerCounts->forget($channel);
 
         $this->audit($request, $channel, 'channel.suspended');
 
@@ -35,7 +37,7 @@ class AdminModerationController extends Controller
         return back()->with('success', 'Channel restored.');
     }
 
-    public function suspendUser(Request $request, User $user): RedirectResponse
+    public function suspendUser(Request $request, User $user, ViewerCountStore $viewerCounts): RedirectResponse
     {
         $user->forceFill(['suspended_at' => now()])->save();
         $user->channel?->forceFill([
@@ -44,12 +46,16 @@ class AdminModerationController extends Controller
             'viewer_count' => 0,
         ])->save();
 
+        if ($user->channel) {
+            $viewerCounts->forget($user->channel);
+        }
+
         $this->audit($request, $user, 'user.suspended');
 
         return back()->with('success', 'User suspended.');
     }
 
-    public function stopBroadcast(Request $request, Broadcast $broadcast): RedirectResponse
+    public function stopBroadcast(Request $request, Broadcast $broadcast, ViewerCountStore $viewerCounts): RedirectResponse
     {
         $broadcast->forceFill([
             'status' => Broadcast::STATUS_ENDED,
@@ -61,6 +67,7 @@ class AdminModerationController extends Controller
             'live_broadcast_id' => null,
             'viewer_count' => 0,
         ])->save();
+        $viewerCounts->forget($broadcast->channel);
 
         $this->audit($request, $broadcast, 'broadcast.stopped');
 

@@ -33,6 +33,7 @@ class Channel extends Model
     {
         return [
             'is_live' => 'boolean',
+            'viewer_count' => 'integer',
             'suspended_at' => 'datetime',
         ];
     }

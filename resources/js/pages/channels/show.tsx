@@ -1,4 +1,11 @@
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import {
+    Head,
+    Link,
+    router,
+    useForm,
+    usePage,
+    usePoll,
+} from '@inertiajs/react';
 import {
     Crown,
     Heart,
@@ -36,12 +43,14 @@ import type {
     BroadcastSummary,
     ChannelDetail,
     ChatMessage,
+    ViewerStats,
     VodSummary,
 } from '@/types';
 
 type Props = {
     channel: ChannelDetail;
     currentBroadcast: BroadcastSummary | null;
+    viewerStats: ViewerStats;
     vods: VodSummary[];
     chatMessages: ChatMessage[];
     isFollowing: boolean;
@@ -69,6 +78,7 @@ const chatEmojis = [
 export default function ChannelShow({
     channel,
     currentBroadcast,
+    viewerStats,
     vods,
     chatMessages,
     isFollowing,
@@ -76,6 +86,18 @@ export default function ChannelShow({
     const { auth } = usePage().props;
     const [chatOpen, setChatOpen] = useState(false);
     const chatForm = useForm({ body: '' });
+    const currentViewers = viewerStats.current;
+    const viewerStatsRefreshInterval = viewerStats.refresh_interval_ms ?? 30000;
+
+    usePoll(
+        viewerStatsRefreshInterval,
+        {
+            only: ['viewerStats'],
+        },
+        {
+            autoStart: channel.is_live && Boolean(currentBroadcast),
+        },
+    );
 
     function submitChat(event: FormEvent) {
         event.preventDefault();
@@ -138,7 +160,7 @@ export default function ChannelShow({
                                         <span>{channel.display_name}</span>
                                         <span className="inline-flex items-center gap-1">
                                             <Users className="size-4" />
-                                            {channel.viewer_count} viewers
+                                            {currentViewers} viewers
                                         </span>
                                         <span>
                                             {channel.followers_count} followers

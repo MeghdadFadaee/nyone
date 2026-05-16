@@ -56,6 +56,12 @@ export type BroadcastSummary = {
     has_vod?: boolean;
 };
 
+export type ViewerStats = {
+    current: number;
+    peak: number;
+    refresh_interval_ms: number;
+};
+
 export type VodSummary = {
     id: number;
     title: string;

@@ -7,6 +7,9 @@ authHTTPExclude:
   - action: metrics
   - action: pprof
 
+api: yes
+apiAddress: 127.0.0.1:9997
+
 rtmp: yes
 rtmpAddress: :19935
 

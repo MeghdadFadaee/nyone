@@ -6,6 +6,7 @@ use App\Models\Broadcast;
 use App\Models\Category;
 use App\Models\Channel;
 use App\Services\Streaming\StreamKeyManager;
+use App\Services\Streaming\ViewerCountStore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -154,7 +155,7 @@ class CreatorDashboardController extends Controller
         return back()->with('success', 'Broadcast is ready. Start streaming from OBS.');
     }
 
-    public function stopBroadcast(Request $request, Broadcast $broadcast): RedirectResponse
+    public function stopBroadcast(Request $request, Broadcast $broadcast, ViewerCountStore $viewerCounts): RedirectResponse
     {
         abort_unless($broadcast->channel->user_id === $request->user()->id, 403);
 
@@ -168,6 +169,7 @@ class CreatorDashboardController extends Controller
             'viewer_count' => 0,
             'live_broadcast_id' => null,
         ])->save();
+        $viewerCounts->forget($broadcast->channel);
 
         return back()->with('success', 'Broadcast ended.');
     }

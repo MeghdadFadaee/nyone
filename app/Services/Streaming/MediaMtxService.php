@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 
 class MediaMtxService
 {
+    public function __construct(private readonly ViewerCountStore $viewerCounts) {}
+
     public function authorize(array $payload): bool
     {
         $action = (string) ($payload['action'] ?? '');
@@ -79,6 +81,8 @@ class MediaMtxService
             'live_broadcast_id' => $broadcast->id,
         ])->save();
 
+        $this->viewerCounts->forget($channel);
+
         return $broadcast;
     }
 
@@ -106,6 +110,8 @@ class MediaMtxService
             'viewer_count' => 0,
             'live_broadcast_id' => null,
         ])->save();
+
+        $this->viewerCounts->forget($channel);
 
         return $broadcast;
     }
