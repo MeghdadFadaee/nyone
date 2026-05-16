@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Radio, Shield } from 'lucide-react';
+import { LayoutGrid, LifeBuoy, Radio, Shield } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard, home } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
+import { index as adminSupportIndex } from '@/routes/admin/support';
+import { index as supportIndex } from '@/routes/support';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -29,6 +31,11 @@ export function AppSidebar() {
             href: dashboard(),
             icon: LayoutGrid,
         },
+        {
+            title: 'Contact',
+            href: supportIndex(),
+            icon: LifeBuoy,
+        },
     ];
 
     if (auth.user?.is_admin) {
@@ -36,6 +43,11 @@ export function AppSidebar() {
             title: 'Admin',
             href: adminDashboard(),
             icon: Shield,
+        });
+        mainNavItems.push({
+            title: 'Support',
+            href: adminSupportIndex(),
+            icon: LifeBuoy,
         });
     }
 

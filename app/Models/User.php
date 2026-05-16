@@ -57,6 +57,16 @@ class User extends Authenticatable
         return $this->hasMany(Follow::class);
     }
 
+    public function supportConversations(): HasMany
+    {
+        return $this->hasMany(SupportConversation::class);
+    }
+
+    public function supportMessages(): HasMany
+    {
+        return $this->hasMany(SupportMessage::class);
+    }
+
     public function isSuspended(): bool
     {
         return $this->suspended_at !== null;

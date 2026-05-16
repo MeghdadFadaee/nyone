@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Menu, Radio, Search, Shield } from 'lucide-react';
+import {
+    LayoutGrid,
+    LifeBuoy,
+    Menu,
+    Radio,
+    Search,
+    Shield,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -34,6 +41,8 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { dashboard, home } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
+import { index as adminSupportIndex } from '@/routes/admin/support';
+import { index as supportIndex } from '@/routes/support';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -58,6 +67,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             href: dashboard(),
             icon: LayoutGrid,
         },
+        {
+            title: 'Contact',
+            href: supportIndex(),
+            icon: LifeBuoy,
+        },
     ];
 
     if (auth.user?.is_admin) {
@@ -65,6 +79,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             title: 'Admin',
             href: adminDashboard(),
             icon: Shield,
+        });
+        mainNavItems.push({
+            title: 'Support',
+            href: adminSupportIndex(),
+            icon: LifeBuoy,
         });
     }
 
