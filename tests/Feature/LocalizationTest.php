@@ -20,6 +20,7 @@ class LocalizationTest extends TestCase
                 ->where('fallbackLocale', config('app.fallback_locale'))
                 ->where('translations.Live', __('Live'))
                 ->where('translations.Password', __('Password'))
+                ->where('translations.Closed', __('Closed'))
                 ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === __('Browse active channels by category or title.'))
             );
     }
@@ -36,6 +37,7 @@ class LocalizationTest extends TestCase
                 ->where('fallbackLocale', config('app.fallback_locale'))
                 ->where('translations.Live', 'En vivo')
                 ->where('translations.Password', 'Contraseña')
+                ->where('translations.Closed', 'Cerrado')
                 ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'Explora canales activos por categoría o título.')
             );
     }
@@ -52,6 +54,7 @@ class LocalizationTest extends TestCase
                 ->where('fallbackLocale', config('app.fallback_locale'))
                 ->where('translations.Live', 'زنده')
                 ->where('translations.Password', 'رمز عبور')
+                ->where('translations.Closed', 'بسته')
                 ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'کانال‌های فعال را بر اساس دسته‌بندی یا عنوان مرور کنید.')
             );
     }
@@ -68,6 +71,7 @@ class LocalizationTest extends TestCase
                 ->where('fallbackLocale', config('app.fallback_locale'))
                 ->where('translations.Live', 'مباشر')
                 ->where('translations.Password', 'كلمة المرور')
+                ->where('translations.Closed', 'مغلق')
                 ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'تصفح القنوات النشطة حسب الفئة أو العنوان.')
             );
     }
