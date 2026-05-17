@@ -34,10 +34,10 @@ class SupportConversation extends Model
     public static function categoryLabels(): array
     {
         return [
-            self::CATEGORY_BUG => 'Bug report',
-            self::CATEGORY_SUGGESTION => 'Suggestion',
-            self::CATEGORY_CHANNEL_REQUEST => 'Channel request',
-            self::CATEGORY_OTHER => 'Other',
+            self::CATEGORY_BUG => (string) __('Bug report'),
+            self::CATEGORY_SUGGESTION => (string) __('Suggestion'),
+            self::CATEGORY_CHANNEL_REQUEST => (string) __('Channel request'),
+            self::CATEGORY_OTHER => (string) __('Other'),
         ];
     }
 

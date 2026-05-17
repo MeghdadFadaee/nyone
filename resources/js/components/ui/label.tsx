@@ -1,12 +1,16 @@
 import * as LabelPrimitive from "@radix-ui/react-label"
 import * as React from "react"
 
+import { useTranslatedChildren } from "@/lib/translations"
 import { cn } from "@/lib/utils"
 
 function Label({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root>) {
+  const translatedChildren = useTranslatedChildren(children)
+
   return (
     <LabelPrimitive.Root
       data-slot="label"
@@ -15,7 +19,9 @@ function Label({
         className
       )}
       {...props}
-    />
+    >
+      {translatedChildren}
+    </LabelPrimitive.Root>
   )
 }
 

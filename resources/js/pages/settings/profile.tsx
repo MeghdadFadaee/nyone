@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/lib/translations';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 
@@ -21,6 +22,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage().props;
+    const { t } = useTranslation();
     const user = auth.user;
     const getInitials = useInitials();
     const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -52,9 +54,9 @@ export default function Profile({
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title={t('Profile settings')} />
 
-            <h1 className="sr-only">Profile settings</h1>
+            <h1 className="sr-only">{t('Profile settings')}</h1>
 
             <div className="space-y-6">
                 <Heading
@@ -114,7 +116,7 @@ export default function Profile({
                                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                         <ImagePlus className="size-3.5" />
                                         <span>
-                                            JPG, PNG, or WebP up to 2 MB.
+                                            {t('JPG, PNG, or WebP up to 2 MB.')}
                                         </span>
                                     </div>
                                     {progress && (
@@ -138,7 +140,7 @@ export default function Profile({
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder={t('Full name')}
                                 />
 
                                 <InputError
@@ -158,7 +160,7 @@ export default function Profile({
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder={t('Email address')}
                                 />
 
                                 <InputError
@@ -171,22 +173,26 @@ export default function Profile({
                                 user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                            {t(
+                                                'Your email address is unverified.',
+                                            )}{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
-                                                Click here to resend the
-                                                verification email.
+                                                {t(
+                                                    'Click here to resend the verification email.',
+                                                )}
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                                {t(
+                                                    'A new verification link has been sent to your email address.',
+                                                )}
                                             </div>
                                         )}
                                     </div>

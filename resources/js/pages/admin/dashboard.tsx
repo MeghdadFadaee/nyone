@@ -27,6 +27,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslation } from '@/lib/translations';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { stop as stopBroadcast } from '@/routes/admin/broadcasts';
 import { restore, suspend } from '@/routes/admin/channels';
@@ -104,6 +105,7 @@ export default function AdminDashboard({
     users,
 }: Props) {
     const [action, setAction] = useState<ModerationAction>(null);
+    const { t } = useTranslation();
 
     function setChannelCreationDefault(channelCreationOpen: boolean) {
         router.patch(
@@ -153,7 +155,7 @@ export default function AdminDashboard({
 
     return (
         <>
-            <Head title="Admin" />
+            <Head title={t('Admin')} />
             <div className="grid gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 rounded-md border bg-card p-5 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
@@ -162,16 +164,19 @@ export default function AdminDashboard({
                         </span>
                         <div>
                             <h1 className="text-2xl font-semibold">
-                                Moderation console
+                                {t('Moderation console')}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                Review live streams, suspended states, users,
-                                and recordings.
+                                {t(
+                                    'Review live streams, suspended states, users, and recordings.',
+                                )}
                             </p>
                         </div>
                     </div>
                     <div className="rounded-md border bg-background px-3 py-2 text-sm">
-                        {liveBroadcasts.length} active broadcasts
+                        {t(':count active broadcasts', {
+                            count: liveBroadcasts.length,
+                        })}
                     </div>
                 </div>
 
@@ -202,10 +207,12 @@ export default function AdminDashboard({
                             <KeyRound className="mt-0.5 size-5 text-primary" />
                             <div>
                                 <h2 className="font-semibold">
-                                    Channel creation access
+                                    {t('Channel creation access')}
                                 </h2>
                                 <p className="text-sm text-muted-foreground">
-                                    Control who can create a creator channel.
+                                    {t(
+                                        'Control who can create a creator channel.',
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -259,10 +266,14 @@ export default function AdminDashboard({
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <Radio className="text-live size-5" />
-                            <h2 className="font-semibold">Live broadcasts</h2>
+                            <h2 className="font-semibold">
+                                {t('Live broadcasts')}
+                            </h2>
                         </div>
                         <span className="text-sm text-muted-foreground">
-                            {liveBroadcasts.length} rows
+                            {t(':count rows', {
+                                count: liveBroadcasts.length,
+                            })}
                         </span>
                     </div>
                     <div className="grid gap-2">
@@ -277,12 +288,15 @@ export default function AdminDashboard({
                                         {broadcast.title}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
-                                        {broadcast.channel.display_name} by{' '}
-                                        {broadcast.channel.owner}
+                                        {t(':channel by :owner', {
+                                            channel:
+                                                broadcast.channel.display_name,
+                                            owner: broadcast.channel.owner,
+                                        })}
                                     </div>
                                     <div className="bg-live mt-2 inline-flex items-center gap-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
                                         <span className="live-pulse size-1.5 rounded-full bg-white" />
-                                        LIVE
+                                        {t('LIVE')}
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
@@ -319,9 +333,13 @@ export default function AdminDashboard({
 
                 <section className="rounded-md border bg-card p-5 shadow-sm">
                     <div className="mb-4 flex items-center justify-between gap-3">
-                        <h2 className="font-semibold">Recent channels</h2>
+                        <h2 className="font-semibold">
+                            {t('Recent channels')}
+                        </h2>
                         <span className="text-sm text-muted-foreground">
-                            {channels.length} rows
+                            {t(':count rows', {
+                                count: channels.length,
+                            })}
                         </span>
                     </div>
                     <div className="grid gap-2">
@@ -336,18 +354,20 @@ export default function AdminDashboard({
                                         {channel.display_name}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
-                                        @{channel.slug} owned by{' '}
-                                        {channel.owner.name}
+                                        {t('@:slug owned by :owner', {
+                                            slug: channel.slug,
+                                            owner: channel.owner.name,
+                                        })}
                                     </div>
                                     <div className="mt-2 flex flex-wrap gap-2">
                                         {channel.is_live && (
                                             <span className="bg-live rounded-md px-2 py-1 text-xs font-semibold text-white">
-                                                LIVE
+                                                {t('LIVE')}
                                             </span>
                                         )}
                                         {channel.suspended_at && (
                                             <span className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
-                                                SUSPENDED
+                                                {t('SUSPENDED')}
                                             </span>
                                         )}
                                     </div>
@@ -400,9 +420,9 @@ export default function AdminDashboard({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{dialogTitle(action)}</DialogTitle>
+                        <DialogTitle>{t(dialogTitle(action))}</DialogTitle>
                         <DialogDescription>
-                            {dialogDescription(action)}
+                            {t(dialogDescription(action))}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -449,10 +469,12 @@ function Stat({
     value: number;
     live?: boolean;
 }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rounded-md border bg-card p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-                <span>{label}</span>
+                <span>{t(label)}</span>
                 <Icon className={live ? 'text-live size-4' : 'size-4'} />
             </div>
             <div className="mt-2 text-2xl font-semibold">{value}</div>
@@ -470,6 +492,7 @@ function CreatorAccessRow({
     onChange: (canCreateChannel: boolean) => void;
 }) {
     const effectiveAccess = defaultOpen || user.can_create_channel;
+    const { t } = useTranslation();
 
     return (
         <div className="grid gap-3 rounded-md border bg-background p-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
@@ -478,12 +501,12 @@ function CreatorAccessRow({
                     <span className="truncate font-medium">{user.name}</span>
                     {user.is_admin && (
                         <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
-                            ADMIN
+                            {t('ADMIN')}
                         </span>
                     )}
                     {user.suspended_at && (
                         <span className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
-                            SUSPENDED
+                            {t('SUSPENDED')}
                         </span>
                     )}
                     <span
@@ -493,11 +516,13 @@ function CreatorAccessRow({
                                 : 'border-warning/40 bg-warning/10 text-warning rounded-md border px-2 py-0.5 text-xs font-medium'
                         }
                     >
-                        {effectiveAccess ? 'CAN CREATE' : 'NEEDS APPROVAL'}
+                        {effectiveAccess
+                            ? t('CAN CREATE')
+                            : t('NEEDS APPROVAL')}
                     </span>
                     {defaultOpen && !user.can_create_channel && (
                         <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
-                            DEFAULT
+                            {t('DEFAULT')}
                         </span>
                     )}
                 </div>
@@ -563,9 +588,11 @@ function Avatar({ channel }: { channel: AdminChannel }) {
 }
 
 function EmptyState({ text }: { text: string }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rounded-md border border-dashed bg-background p-6 text-sm text-muted-foreground">
-            {text}
+            {t(text)}
         </div>
     );
 }

@@ -6,13 +6,16 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translations';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
 
 export default function ForgotPassword({ status }: { status?: string }) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Forgot password" />
+            <Head title={t('Forgot password')} />
 
             {status && (
                 <div className="mb-4 text-center text-sm font-medium text-green-600">
@@ -32,7 +35,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                                     name="email"
                                     autoComplete="off"
                                     autoFocus
-                                    placeholder="email@example.com"
+                                    placeholder={t('email@example.com')}
                                 />
 
                                 <InputError message={errors.email} />
@@ -55,8 +58,8 @@ export default function ForgotPassword({ status }: { status?: string }) {
                 </Form>
 
                 <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
-                    <TextLink href={login()}>log in</TextLink>
+                    <span>{t('Or, return to')}</span>
+                    <TextLink href={login()}>{t('log in')}</TextLink>
                 </div>
             </div>
         </>

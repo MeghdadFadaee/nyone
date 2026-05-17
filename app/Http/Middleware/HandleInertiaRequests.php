@@ -41,7 +41,40 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'fallbackLocale' => (string) config('app.fallback_locale'),
+            'locale' => app()->getLocale(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'translations' => fn () => $this->translations(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function translations(): array
+    {
+        $fallbackLocale = (string) config('app.fallback_locale');
+        $locale = app()->getLocale();
+
+        return [
+            ...$this->jsonTranslations($fallbackLocale),
+            ...$this->jsonTranslations($locale),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function jsonTranslations(string $locale): array
+    {
+        $path = lang_path("{$locale}.json");
+
+        if (! is_file($path)) {
+            return [];
+        }
+
+        $translations = json_decode((string) file_get_contents($path), true);
+
+        return is_array($translations) ? $translations : [];
     }
 }

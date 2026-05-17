@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { Inbox, MessageSquare, Shield, User } from 'lucide-react';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import {
     index as adminSupportIndex,
@@ -16,9 +17,11 @@ type Props = {
 };
 
 export default function AdminSupportIndex({ stats, conversations }: Props) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Support inbox" />
+            <Head title={t('Support inbox')} />
             <div className="grid gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 rounded-md border bg-card p-5 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
@@ -27,11 +30,12 @@ export default function AdminSupportIndex({ stats, conversations }: Props) {
                         </span>
                         <div>
                             <h1 className="text-2xl font-semibold">
-                                Support inbox
+                                {t('Support inbox')}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                Contact threads from users and channel request
-                                notes.
+                                {t(
+                                    'Contact threads from users and channel request notes.',
+                                )}
                             </p>
                         </div>
                     </div>
@@ -45,10 +49,14 @@ export default function AdminSupportIndex({ stats, conversations }: Props) {
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <Shield className="size-5 text-primary" />
-                            <h2 className="font-semibold">Conversations</h2>
+                            <h2 className="font-semibold">
+                                {t('Conversations')}
+                            </h2>
                         </div>
                         <span className="text-sm text-muted-foreground">
-                            {conversations.length} rows
+                            {t(':count rows', {
+                                count: conversations.length,
+                            })}
                         </span>
                     </div>
                     <div className="grid gap-2">
@@ -96,7 +104,7 @@ export default function AdminSupportIndex({ stats, conversations }: Props) {
 
                         {conversations.length === 0 && (
                             <div className="rounded-md border border-dashed bg-background p-6 text-sm text-muted-foreground">
-                                No support conversations found.
+                                {t('No support conversations found.')}
                             </div>
                         )}
                     </div>
@@ -116,15 +124,19 @@ AdminSupportIndex.layout = {
 };
 
 function Stat({ label, value }: { label: string; value: number }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rounded-md border bg-background px-3 py-2">
-            <span className="text-muted-foreground">{label}</span>{' '}
+            <span className="text-muted-foreground">{t(label)}</span>{' '}
             <span className="font-semibold">{value}</span>
         </div>
     );
 }
 
 function StatusBadge({ status }: { status: 'open' | 'closed' }) {
+    const { t } = useTranslation();
+
     return (
         <span
             className={cn(
@@ -134,7 +146,7 @@ function StatusBadge({ status }: { status: 'open' | 'closed' }) {
                     : 'text-muted-foreground',
             )}
         >
-            {status === 'open' ? 'OPEN' : 'CLOSED'}
+            {status === 'open' ? t('OPEN') : t('CLOSED')}
         </span>
     );
 }

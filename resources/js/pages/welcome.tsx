@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { dashboard, home, login, register } from '@/routes';
 import { show as showChannel } from '@/routes/channels';
@@ -31,6 +32,7 @@ export default function Welcome({
     categories,
 }: Props) {
     const { auth } = usePage().props;
+    const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState<string>('all');
 
@@ -55,7 +57,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Live" />
+            <Head title={t('Live')} />
             <div className="min-h-screen bg-background text-foreground">
                 <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
                     <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4">
@@ -74,7 +76,7 @@ export default function Welcome({
                                 href={home()}
                                 className="rounded-md px-3 py-2 text-foreground"
                             >
-                                Live
+                                {t('Live')}
                             </Link>
                             {auth.user && (
                                 <>
@@ -82,13 +84,13 @@ export default function Welcome({
                                         href={dashboard()}
                                         className="rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
                                     >
-                                        Studio
+                                        {t('Studio')}
                                     </Link>
                                     <Link
                                         href={supportIndex()}
                                         className="rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
                                     >
-                                        Contact
+                                        {t('Contact')}
                                     </Link>
                                 </>
                             )}
@@ -100,26 +102,28 @@ export default function Welcome({
                                     <Button asChild size="sm">
                                         <Link href={dashboard()}>
                                             <LayoutDashboard className="size-4" />
-                                            Studio
+                                            {t('Studio')}
                                         </Link>
                                     </Button>
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={supportIndex()}>
                                             <LifeBuoy className="size-4" />
-                                            Contact
+                                            {t('Contact')}
                                         </Link>
                                     </Button>
                                 </>
                             ) : (
                                 <>
                                     <Button asChild variant="ghost" size="sm">
-                                        <Link href={login()}>Log in</Link>
+                                        <Link href={login()}>
+                                            {t('Log in')}
+                                        </Link>
                                     </Button>
                                     {canRegister && (
                                         <Button asChild size="sm">
                                             <Link href={register()}>
                                                 <UserPlus className="size-4" />
-                                                Register
+                                                {t('Register')}
                                             </Link>
                                         </Button>
                                     )}
@@ -140,7 +144,7 @@ export default function Welcome({
                                     <Thumbnail
                                         channel={featuredChannel}
                                         className="aspect-video lg:aspect-auto lg:w-[58%] lg:flex-none"
-                                        label="Featured live"
+                                        label={t('Featured live')}
                                     />
                                     <div className="grid min-w-0 flex-1 content-between gap-6 p-5">
                                         <div className="min-w-0 space-y-4">
@@ -152,7 +156,14 @@ export default function Welcome({
                                                 </h1>
                                                 <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">
                                                     {featuredChannel.description ??
-                                                        `${featuredChannel.display_name} is live now with ${featuredChannel.viewer_count} viewers.`}
+                                                        t(
+                                                            ':channel is live now with :count viewers.',
+                                                            {
+                                                                channel:
+                                                                    featuredChannel.display_name,
+                                                                count: featuredChannel.viewer_count,
+                                                            },
+                                                        )}
                                                 </p>
                                             </div>
                                         </div>
@@ -162,17 +173,17 @@ export default function Welcome({
                                             </span>
                                             <span className="min-w-0 break-words">
                                                 {featuredChannel.category
-                                                    ?.name ?? 'Uncategorized'}
+                                                    ?.name ??
+                                                    t('Uncategorized')}
                                             </span>
                                             <span className="inline-flex items-center gap-1">
                                                 <Users className="size-4" />
-                                                {
-                                                    featuredChannel.viewer_count
-                                                }{' '}
-                                                viewers
+                                                {t(':count viewers', {
+                                                    count: featuredChannel.viewer_count,
+                                                })}
                                             </span>
                                             <span className="inline-flex shrink-0 items-center gap-1 text-primary sm:ml-auto">
-                                                Watch
+                                                {t('Watch')}
                                                 <ArrowRight className="size-4" />
                                             </span>
                                         </div>
@@ -186,11 +197,12 @@ export default function Welcome({
                                 </div>
                                 <div className="max-w-xl space-y-2">
                                     <h1 className="text-2xl font-semibold md:text-4xl">
-                                        The live floor is quiet
+                                        {t('The live floor is quiet')}
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground md:text-base">
-                                        Creators can prepare a broadcast in the
-                                        studio and go live from OBS when ready.
+                                        {t(
+                                            'Creators can prepare a broadcast in the studio and go live from OBS when ready.',
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -200,10 +212,10 @@ export default function Welcome({
                             <div className="flex items-center justify-between gap-3 border-b pb-3">
                                 <div>
                                     <div className="text-sm font-medium">
-                                        Live signal
+                                        {t('Live signal')}
                                     </div>
                                     <div className="text-xs text-muted-foreground">
-                                        Public channels broadcasting now
+                                        {t('Public channels broadcasting now')}
                                     </div>
                                 </div>
                                 <div className="bg-live rounded-md px-2 py-1 text-xs font-medium text-white">
@@ -212,12 +224,12 @@ export default function Welcome({
                             </div>
                             <Metric
                                 icon={Radio}
-                                label="Live channels"
+                                label={t('Live channels')}
                                 value={String(liveChannels.length)}
                             />
                             <Metric
                                 icon={Users}
-                                label="Viewers"
+                                label={t('Viewers')}
                                 value={String(
                                     liveChannels.reduce(
                                         (total, item) =>
@@ -228,7 +240,7 @@ export default function Welcome({
                             />
                             <Metric
                                 icon={Compass}
-                                label="Categories"
+                                label={t('Categories')}
                                 value={String(categories.length)}
                             />
                             <Button asChild variant="outline">
@@ -236,8 +248,8 @@ export default function Welcome({
                                     href={auth.user ? dashboard() : register()}
                                 >
                                     {auth.user
-                                        ? 'Open studio'
-                                        : 'Start a channel'}
+                                        ? t('Open studio')
+                                        : t('Start a channel')}
                                 </Link>
                             </Button>
                         </aside>
@@ -247,10 +259,12 @@ export default function Welcome({
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                             <div>
                                 <h2 className="text-xl font-semibold">
-                                    Live directory
+                                    {t('Live directory')}
                                 </h2>
                                 <p className="text-sm text-muted-foreground">
-                                    Browse active channels by category or title.
+                                    {t(
+                                        'Browse active channels by category or title.',
+                                    )}
                                 </p>
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
@@ -261,7 +275,7 @@ export default function Welcome({
                                         onChange={(event) =>
                                             setQuery(event.target.value)
                                         }
-                                        placeholder="Search live channels"
+                                        placeholder={t('Search live channels')}
                                         className="pl-9 sm:w-72"
                                     />
                                 </div>
@@ -272,7 +286,9 @@ export default function Welcome({
                                     }
                                     className="h-9 rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                                 >
-                                    <option value="all">All categories</option>
+                                    <option value="all">
+                                        {t('All categories')}
+                                    </option>
                                     {categories.map((item) => (
                                         <option key={item.id} value={item.slug}>
                                             {item.name}
@@ -296,10 +312,12 @@ export default function Welcome({
                                 <Search className="size-8 text-muted-foreground" />
                                 <div>
                                     <div className="font-medium">
-                                        No streams match this view
+                                        {t('No streams match this view')}
                                     </div>
                                     <div className="text-sm text-muted-foreground">
-                                        Clear search or switch categories.
+                                        {t(
+                                            'Clear search or switch categories.',
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -312,6 +330,8 @@ export default function Welcome({
 }
 
 function StreamCard({ channel }: { channel: ChannelCard }) {
+    const { t } = useTranslation();
+
     return (
         <Link
             href={showChannel(channel.slug)}
@@ -325,16 +345,21 @@ function StreamCard({ channel }: { channel: ChannelCard }) {
                             {channel.broadcast?.title ?? channel.display_name}
                         </div>
                         <div className="truncate text-sm text-muted-foreground">
-                            {channel.display_name} by {channel.owner.name}
+                            {t(':channel by :owner', {
+                                channel: channel.display_name,
+                                owner: channel.owner.name,
+                            })}
                         </div>
                     </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
                     <span className="truncate">
-                        {channel.category?.name ?? 'Uncategorized'}
+                        {channel.category?.name ?? t('Uncategorized')}
                     </span>
                     <span className="shrink-0">
-                        {channel.viewer_count} viewers
+                        {t(':count viewers', {
+                            count: channel.viewer_count,
+                        })}
                     </span>
                 </div>
             </div>
@@ -351,6 +376,8 @@ function Thumbnail({
     className?: string;
     label?: string;
 }) {
+    const { t } = useTranslation();
+
     return (
         <div
             className={cn(
@@ -368,7 +395,7 @@ function Thumbnail({
                 <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_40%_30%,oklch(0.34_0.12_326),oklch(0.14_0.04_315)_55%)]">
                     <div className="flex items-center gap-2 text-sm font-medium">
                         <span className="bg-live live-pulse size-2 rounded-full" />
-                        {label}
+                        {t(label)}
                     </div>
                 </div>
             )}
@@ -380,6 +407,8 @@ function Thumbnail({
 }
 
 function LiveBadge({ compact = false }: { compact?: boolean }) {
+    const { t } = useTranslation();
+
     return (
         <span
             className={cn(
@@ -388,7 +417,7 @@ function LiveBadge({ compact = false }: { compact?: boolean }) {
             )}
         >
             <span className="live-pulse size-1.5 rounded-full bg-white" />
-            LIVE
+            {t('LIVE')}
         </span>
     );
 }

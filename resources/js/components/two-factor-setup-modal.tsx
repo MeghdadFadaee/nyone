@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { useTranslation } from '@/lib/translations';
 import { confirm } from '@/routes/two-factor';
 
 function GridScanIcon() {
@@ -64,6 +65,7 @@ function TwoFactorSetupStep({
 }) {
     const { resolvedAppearance } = useAppearance();
     const [copiedText, copy] = useClipboard();
+    const { t } = useTranslation();
     const IconComponent = copiedText === manualSetupKey ? Check : Copy;
 
     return (
@@ -104,7 +106,7 @@ function TwoFactorSetupStep({
                     <div className="relative flex w-full items-center justify-center">
                         <div className="absolute inset-0 top-1/2 h-px w-full bg-border" />
                         <span className="relative bg-card px-2 py-1">
-                            or, enter the code manually
+                            {t('or, enter the code manually')}
                         </span>
                     </div>
 
@@ -147,6 +149,7 @@ function TwoFactorVerificationStep({
 }) {
     const [code, setCode] = useState<string>('');
     const pinInputContainerRef = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         setTimeout(() => {
@@ -210,7 +213,7 @@ function TwoFactorVerificationStep({
                                 onClick={onBack}
                                 disabled={processing}
                             >
-                                Back
+                                {t('Back')}
                             </Button>
                             <Button
                                 type="submit"
@@ -219,7 +222,7 @@ function TwoFactorVerificationStep({
                                     processing || code.length < OTP_MAX_LENGTH
                                 }
                             >
-                                Confirm
+                                {t('Confirm')}
                             </Button>
                         </div>
                     </div>
@@ -254,6 +257,7 @@ export default function TwoFactorSetupModal({
 }: Props) {
     const [showVerificationStep, setShowVerificationStep] =
         useState<boolean>(false);
+    const { t } = useTranslation();
 
     const modalConfig = useMemo<{
         title: string;
@@ -262,29 +266,32 @@ export default function TwoFactorSetupModal({
     }>(() => {
         if (twoFactorEnabled) {
             return {
-                title: 'Two-factor authentication enabled',
-                description:
+                title: t('Two-factor authentication enabled'),
+                description: t(
                     'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-                buttonText: 'Close',
+                ),
+                buttonText: t('Close'),
             };
         }
 
         if (showVerificationStep) {
             return {
-                title: 'Verify authentication code',
-                description:
+                title: t('Verify authentication code'),
+                description: t(
                     'Enter the 6-digit code from your authenticator app',
-                buttonText: 'Continue',
+                ),
+                buttonText: t('Continue'),
             };
         }
 
         return {
-            title: 'Enable two-factor authentication',
-            description:
+            title: t('Enable two-factor authentication'),
+            description: t(
                 'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-            buttonText: 'Continue',
+            ),
+            buttonText: t('Continue'),
         };
-    }, [twoFactorEnabled, showVerificationStep]);
+    }, [showVerificationStep, t, twoFactorEnabled]);
 
     const resetModalState = useCallback(() => {
         setShowVerificationStep(false);

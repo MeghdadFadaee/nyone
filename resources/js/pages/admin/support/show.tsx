@@ -15,6 +15,7 @@ import { SupportAttachmentErrors } from '@/components/support-attachment-errors'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import {
@@ -36,6 +37,7 @@ type Props = {
 
 export default function AdminSupportShow({ conversation }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { t } = useTranslation();
     const form = useForm({
         body: '',
         attachments: [] as File[],
@@ -84,7 +86,7 @@ export default function AdminSupportShow({ conversation }: Props) {
                         >
                             <Link href={adminSupportIndex()}>
                                 <ArrowLeft className="size-4" />
-                                Support inbox
+                                {t('Support inbox')}
                             </Link>
                         </Button>
                         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -111,7 +113,7 @@ export default function AdminSupportShow({ conversation }: Props) {
                                 ) : (
                                     <Lock className="size-4" />
                                 )}
-                                {isClosed ? 'Reopen' : 'Close'}
+                                {isClosed ? t('Reopen') : t('Close')}
                             </Button>
                         </div>
                     </div>
@@ -126,7 +128,9 @@ export default function AdminSupportShow({ conversation }: Props) {
                         {isClosed ? (
                             <div className="flex items-start gap-3 rounded-md border border-dashed bg-background p-4 text-sm text-muted-foreground">
                                 <Lock className="mt-0.5 size-4 shrink-0" />
-                                <span>Reopen the conversation to reply.</span>
+                                <span>
+                                    {t('Reopen the conversation to reply.')}
+                                </span>
                             </div>
                         ) : (
                             <form onSubmit={submit} className="grid gap-4">
@@ -197,7 +201,7 @@ export default function AdminSupportShow({ conversation }: Props) {
                     <section className="rounded-md border bg-card p-5 shadow-sm">
                         <div className="mb-4 flex items-center gap-2">
                             <User className="size-5 text-primary" />
-                            <h2 className="font-semibold">User</h2>
+                            <h2 className="font-semibold">{t('User')}</h2>
                         </div>
                         <div className="grid gap-3 text-sm">
                             <div>
@@ -218,12 +222,12 @@ export default function AdminSupportShow({ conversation }: Props) {
                                     )}
                                 >
                                     {conversation.user?.can_create_channel
-                                        ? 'CAN CREATE CHANNEL'
-                                        : 'NEEDS CHANNEL GRANT'}
+                                        ? t('CAN CREATE CHANNEL')
+                                        : t('NEEDS CHANNEL GRANT')}
                                 </span>
                                 {conversation.user?.suspended_at && (
                                     <span className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
-                                        SUSPENDED
+                                        {t('SUSPENDED')}
                                     </span>
                                 )}
                             </div>
@@ -246,12 +250,13 @@ export default function AdminSupportShow({ conversation }: Props) {
                             <div className="mb-3 flex items-center gap-2">
                                 <KeyRound className="size-5 text-primary" />
                                 <h2 className="font-semibold">
-                                    Channel request
+                                    {t('Channel request')}
                                 </h2>
                             </div>
                             <p className="mb-4 text-sm text-muted-foreground">
-                                Creator access grants stay in the moderation
-                                console.
+                                {t(
+                                    'Creator access grants stay in the moderation console.',
+                                )}
                             </p>
                             <Button asChild variant="outline" size="sm">
                                 <Link href={adminDashboard()}>
@@ -277,6 +282,7 @@ AdminSupportShow.layout = {
 
 function MessageBubble({ message }: { message: SupportMessage }) {
     const isAdmin = message.author.is_admin;
+    const { t } = useTranslation();
 
     return (
         <article
@@ -288,7 +294,7 @@ function MessageBubble({ message }: { message: SupportMessage }) {
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="font-medium">{message.author.name}</span>
                 <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
-                    {isAdmin ? 'ADMIN' : 'USER'}
+                    {isAdmin ? t('ADMIN') : t('USER')}
                 </span>
                 {message.created_at && (
                     <span className="text-xs text-muted-foreground">
@@ -345,6 +351,8 @@ function Field({
 }
 
 function StatusBadge({ status }: { status: 'open' | 'closed' }) {
+    const { t } = useTranslation();
+
     return (
         <span
             className={cn(
@@ -354,7 +362,7 @@ function StatusBadge({ status }: { status: 'open' | 'closed' }) {
                     : 'text-muted-foreground',
             )}
         >
-            {status === 'open' ? 'OPEN' : 'CLOSED'}
+            {status === 'open' ? t('OPEN') : t('CLOSED')}
         </span>
     );
 }

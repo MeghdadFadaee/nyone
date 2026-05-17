@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useTranslation } from '@/lib/translations';
 import { home } from '@/routes';
 
 export default function AuthCardLayout({
@@ -19,6 +20,8 @@ export default function AuthCardLayout({
     title?: string;
     description?: string;
 }>) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
             <div className="flex w-full max-w-md flex-col gap-6">
@@ -34,8 +37,12 @@ export default function AuthCardLayout({
                 <div className="flex flex-col gap-6">
                     <Card className="rounded-md shadow-sm">
                         <CardHeader className="px-10 pt-8 pb-0 text-center">
-                            <CardTitle className="text-xl">{title}</CardTitle>
-                            <CardDescription>{description}</CardDescription>
+                            <CardTitle className="text-xl">
+                                {t(title ?? '')}
+                            </CardTitle>
+                            <CardDescription>
+                                {t(description ?? '')}
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="px-10 py-8">
                             {children}

@@ -6,6 +6,7 @@ import { SupportAttachmentErrors } from '@/components/support-attachment-errors'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { index as supportIndex } from '@/routes/support';
 import { show as showAttachment } from '@/routes/support/attachments';
@@ -22,6 +23,7 @@ type Props = {
 
 export default function SupportShow({ conversation }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { t } = useTranslation();
     const form = useForm({
         body: '',
         attachments: [] as File[],
@@ -56,7 +58,7 @@ export default function SupportShow({ conversation }: Props) {
                     <Button asChild variant="ghost" size="sm" className="mb-4">
                         <Link href={supportIndex()}>
                             <ArrowLeft className="size-4" />
-                            Contact admin
+                            {t('Contact admin')}
                         </Link>
                     </Button>
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -72,7 +74,9 @@ export default function SupportShow({ conversation }: Props) {
                             </h1>
                         </div>
                         <div className="rounded-md border bg-background px-3 py-2 text-sm text-muted-foreground">
-                            {conversation.messages_count} messages
+                            {t(':count messages', {
+                                count: conversation.messages_count,
+                            })}
                         </div>
                     </div>
                 </div>
@@ -87,7 +91,7 @@ export default function SupportShow({ conversation }: Props) {
                     {isClosed ? (
                         <div className="flex items-start gap-3 rounded-md border border-dashed bg-background p-4 text-sm text-muted-foreground">
                             <Lock className="mt-0.5 size-4 shrink-0" />
-                            <span>This conversation is closed.</span>
+                            <span>{t('This conversation is closed.')}</span>
                         </div>
                     ) : (
                         <form onSubmit={submit} className="grid gap-4">
@@ -161,6 +165,7 @@ SupportShow.layout = {
 
 function MessageBubble({ message }: { message: SupportMessage }) {
     const isAdmin = message.author.is_admin;
+    const { t } = useTranslation();
 
     return (
         <article
@@ -172,7 +177,7 @@ function MessageBubble({ message }: { message: SupportMessage }) {
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="font-medium">{message.author.name}</span>
                 <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground">
-                    {isAdmin ? 'ADMIN' : 'YOU'}
+                    {isAdmin ? t('ADMIN') : t('YOU')}
                 </span>
                 {message.created_at && (
                     <span className="text-xs text-muted-foreground">
@@ -229,6 +234,8 @@ function Field({
 }
 
 function StatusBadge({ status }: { status: 'open' | 'closed' }) {
+    const { t } = useTranslation();
+
     return (
         <span
             className={cn(
@@ -238,7 +245,7 @@ function StatusBadge({ status }: { status: 'open' | 'closed' }) {
                     : 'text-muted-foreground',
             )}
         >
-            {status === 'open' ? 'OPEN' : 'CLOSED'}
+            {status === 'open' ? t('OPEN') : t('CLOSED')}
         </span>
     );
 }

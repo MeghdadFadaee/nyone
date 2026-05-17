@@ -10,6 +10,7 @@ import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
+import { useTranslation } from '@/lib/translations';
 import { edit } from '@/routes/security';
 import { disable, enable } from '@/routes/two-factor';
 
@@ -26,6 +27,7 @@ export default function Security({
     twoFactorEnabled = false,
     passwordRules,
 }: Props) {
+    const { t } = useTranslation();
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -53,9 +55,9 @@ export default function Security({
 
     return (
         <>
-            <Head title="Security settings" />
+            <Head title={t('Security settings')} />
 
-            <h1 className="sr-only">Security settings</h1>
+            <h1 className="sr-only">{t('Security settings')}</h1>
 
             <div className="space-y-6">
                 <Heading
@@ -99,7 +101,7 @@ export default function Security({
                                     name="current_password"
                                     className="mt-1 block w-full"
                                     autoComplete="current-password"
-                                    placeholder="Current password"
+                                    placeholder={t('Current password')}
                                 />
 
                                 <InputError message={errors.current_password} />
@@ -114,7 +116,7 @@ export default function Security({
                                     name="password"
                                     className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="New password"
+                                    placeholder={t('New password')}
                                     passwordrules={passwordRules}
                                 />
 
@@ -131,7 +133,7 @@ export default function Security({
                                     name="password_confirmation"
                                     className="mt-1 block w-full"
                                     autoComplete="new-password"
-                                    placeholder="Confirm password"
+                                    placeholder={t('Confirm password')}
                                     passwordrules={passwordRules}
                                 />
 
@@ -163,9 +165,9 @@ export default function Security({
                     {twoFactorEnabled ? (
                         <div className="flex flex-col items-start justify-start space-y-4">
                             <p className="text-sm text-muted-foreground">
-                                You will be prompted for a secure, random pin
-                                during login, which you can retrieve from the
-                                TOTP-supported application on your phone.
+                                {t(
+                                    'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.',
+                                )}
                             </p>
 
                             <div className="relative inline">
@@ -191,10 +193,9 @@ export default function Security({
                     ) : (
                         <div className="flex flex-col items-start justify-start space-y-4">
                             <p className="text-sm text-muted-foreground">
-                                When you enable two-factor authentication, you
-                                will be prompted for a secure pin during login.
-                                This pin can be retrieved from a TOTP-supported
-                                application on your phone.
+                                {t(
+                                    'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.',
+                                )}
                             </p>
 
                             <div>

@@ -46,7 +46,7 @@ class AdminSupportConversationController extends Controller
 
     public function reply(StoreSupportMessageRequest $request, SupportConversation $conversation, SupportMessageCreator $messages): RedirectResponse
     {
-        abort_unless($conversation->isOpen(), 422, 'Reopen this conversation before replying.');
+        abort_unless($conversation->isOpen(), 422, __('Reopen this conversation before replying.'));
 
         $validated = $request->validated();
 
@@ -57,7 +57,7 @@ class AdminSupportConversationController extends Controller
             $request->file('attachments', []) ?: [],
         );
 
-        return back()->with('success', 'Reply sent.');
+        return back()->with('success', __('Reply sent.'));
     }
 
     public function update(UpdateSupportConversationStatusRequest $request, SupportConversation $conversation): RedirectResponse
@@ -68,7 +68,7 @@ class AdminSupportConversationController extends Controller
 
         return back()->with(
             'success',
-            $conversation->isOpen() ? 'Conversation reopened.' : 'Conversation closed.',
+            $conversation->isOpen() ? __('Conversation reopened.') : __('Conversation closed.'),
         );
     }
 
@@ -103,7 +103,7 @@ class AdminSupportConversationController extends Controller
         return [
             'id' => $conversation->id,
             'category' => $conversation->category,
-            'category_label' => SupportConversation::categoryLabels()[$conversation->category] ?? 'Other',
+            'category_label' => SupportConversation::categoryLabels()[$conversation->category] ?? __('Other'),
             'subject' => $conversation->subject,
             'status' => $conversation->status,
             'last_message_at' => $conversation->last_message_at?->toIso8601String(),
@@ -144,7 +144,7 @@ class AdminSupportConversationController extends Controller
             'created_at' => $message->created_at?->toIso8601String(),
             'author' => [
                 'id' => $message->user?->id,
-                'name' => $message->user?->name ?? 'Deleted user',
+                'name' => $message->user?->name ?? __('Deleted user'),
                 'is_admin' => (bool) $message->user?->is_admin,
             ],
         ];

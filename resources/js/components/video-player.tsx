@@ -1,5 +1,6 @@
 import Hls from 'hls.js/light';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from '@/lib/translations';
 
 export function VideoPlayer({
     src,
@@ -9,6 +10,7 @@ export function VideoPlayer({
     title: string;
 }) {
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const video = videoRef.current;
@@ -39,7 +41,7 @@ export function VideoPlayer({
     if (!src) {
         return (
             <div className="flex aspect-video w-full items-center justify-center bg-neutral-950 text-sm text-neutral-300">
-                Offline
+                {t('Offline')}
             </div>
         );
     }

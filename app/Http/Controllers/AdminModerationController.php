@@ -25,7 +25,7 @@ class AdminModerationController extends Controller
 
         $this->audit($request, $channel, 'channel.suspended');
 
-        return back()->with('success', 'Channel suspended.');
+        return back()->with('success', __('Channel suspended.'));
     }
 
     public function restoreChannel(Request $request, Channel $channel): RedirectResponse
@@ -34,7 +34,7 @@ class AdminModerationController extends Controller
 
         $this->audit($request, $channel, 'channel.restored');
 
-        return back()->with('success', 'Channel restored.');
+        return back()->with('success', __('Channel restored.'));
     }
 
     public function suspendUser(Request $request, User $user, ViewerCountStore $viewerCounts): RedirectResponse
@@ -52,7 +52,7 @@ class AdminModerationController extends Controller
 
         $this->audit($request, $user, 'user.suspended');
 
-        return back()->with('success', 'User suspended.');
+        return back()->with('success', __('User suspended.'));
     }
 
     public function stopBroadcast(Request $request, Broadcast $broadcast, ViewerCountStore $viewerCounts): RedirectResponse
@@ -71,7 +71,7 @@ class AdminModerationController extends Controller
 
         $this->audit($request, $broadcast, 'broadcast.stopped');
 
-        return back()->with('success', 'Broadcast stopped.');
+        return back()->with('success', __('Broadcast stopped.'));
     }
 
     public function deleteVod(Request $request, Vod $vod): RedirectResponse
@@ -80,7 +80,7 @@ class AdminModerationController extends Controller
 
         $this->audit($request, $vod, 'vod.deleted');
 
-        return back()->with('success', 'VOD deleted.');
+        return back()->with('success', __('VOD deleted.'));
     }
 
     private function audit(Request $request, object $subject, string $action): void

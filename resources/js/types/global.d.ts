@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { Translations } from '@/types/localization';
 
 declare module 'react' {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -12,7 +13,10 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            fallbackLocale: string;
+            locale: string;
             sidebarOpen: boolean;
+            translations: Translations;
             [key: string]: unknown;
         };
     }
