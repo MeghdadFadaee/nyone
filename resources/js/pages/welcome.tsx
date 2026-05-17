@@ -90,7 +90,7 @@ export default function Welcome({
                                         href={supportIndex()}
                                         className="rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
                                     >
-                                        {t('Contact')}
+                                        {t('Contact admin')}
                                     </Link>
                                 </>
                             )}
@@ -108,7 +108,7 @@ export default function Welcome({
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={supportIndex()}>
                                             <LifeBuoy className="size-4" />
-                                            {t('Contact')}
+                                            {t('Contact admin')}
                                         </Link>
                                     </Button>
                                 </>

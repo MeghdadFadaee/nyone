@@ -32,7 +32,7 @@ export function AppSidebar() {
             icon: LayoutGrid,
         },
         {
-            title: 'Contact',
+            title: 'Contact admin',
             href: supportIndex(),
             icon: LifeBuoy,
         },

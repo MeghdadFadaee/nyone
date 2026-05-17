@@ -70,7 +70,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             icon: LayoutGrid,
         },
         {
-            title: 'Contact',
+            title: 'Contact admin',
             href: supportIndex(),
             icon: LifeBuoy,
         },
