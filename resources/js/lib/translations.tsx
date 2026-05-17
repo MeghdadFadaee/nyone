@@ -1,11 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import {
-    Children,
-    cloneElement,
-    isValidElement,
-    useCallback,
-    useMemo,
-} from 'react';
+import { cloneElement, isValidElement, useCallback, useMemo } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import type { TranslationReplacements, Translations } from '@/types';
 
@@ -32,27 +26,29 @@ export function translateChildren(
     children: ReactNode,
     translate: Translate,
 ): ReactNode {
-    return Children.map(children, (child) => {
-        if (typeof child === 'string') {
-            return translateTextNode(child, translate);
-        }
+    if (Array.isArray(children)) {
+        return children.map((child) => translateChildren(child, translate));
+    }
 
-        if (!isValidElement(child)) {
-            return child;
-        }
+    if (typeof children === 'string') {
+        return translateTextNode(children, translate);
+    }
 
-        const element = child as ReactElement<{ children?: ReactNode }>;
+    if (!isValidElement(children)) {
+        return children;
+    }
 
-        if (!element.props.children) {
-            return element;
-        }
+    const element = children as ReactElement<{ children?: ReactNode }>;
 
-        return cloneElement(
-            element,
-            undefined,
-            translateChildren(element.props.children, translate),
-        );
-    });
+    if (!element.props.children) {
+        return element;
+    }
+
+    return cloneElement(
+        element,
+        undefined,
+        translateChildren(element.props.children, translate),
+    );
 }
 
 export function useTranslation(): {
