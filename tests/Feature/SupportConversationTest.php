@@ -76,7 +76,7 @@ class SupportConversationTest extends TestCase
                 'category',
                 'subject',
                 'body',
-                'attachments.0' => 'Unsupported attachment type. Upload media, PDF, text/data, Office, OpenDocument, or archive files.',
+                'attachments.0' => __('Unsupported attachment type. Upload media, PDF, text/data, Office, OpenDocument, or archive files.'),
             ]);
     }
 
@@ -93,7 +93,7 @@ class SupportConversationTest extends TestCase
                 'attachments' => [$attachment],
             ])
             ->assertSessionHasErrors([
-                'attachments.0' => 'Attachments must be 200 MB or smaller.',
+                'attachments.0' => __('Attachments must be 200 MB or smaller.'),
             ]);
     }
 
