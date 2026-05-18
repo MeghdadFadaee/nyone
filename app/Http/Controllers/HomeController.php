@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Enums\ChannelCategory;
 use App\Models\Channel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class HomeController extends Controller
         $liveChannels = Channel::query()
             ->where('is_live', true)
             ->whereNull('suspended_at')
-            ->with(['category', 'liveBroadcast', 'user'])
+            ->with(['liveBroadcast', 'user'])
             ->withCount('follows')
             ->orderByDesc('viewer_count')
             ->latest()
@@ -28,14 +28,7 @@ class HomeController extends Controller
         return Inertia::render('welcome', [
             'canRegister' => Features::enabled(Features::registration()),
             'liveChannels' => $liveChannels,
-            'categories' => Category::query()
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug'])
-                ->map(fn (Category $category) => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                ]),
+            'categories' => ChannelCategory::options(),
         ]);
     }
 
@@ -52,11 +45,7 @@ class HomeController extends Controller
             'banner_url' => $this->mediaUrl($channel->banner_path),
             'viewer_count' => $channel->viewer_count,
             'followers_count' => $channel->follows_count ?? 0,
-            'category' => $channel->category ? [
-                'id' => $channel->category->id,
-                'name' => $channel->category->name,
-                'slug' => $channel->category->slug,
-            ] : null,
+            'category' => $channel->category?->toOption(),
             'broadcast' => $channel->liveBroadcast ? [
                 'id' => $channel->liveBroadcast->id,
                 'title' => $channel->liveBroadcast->title,

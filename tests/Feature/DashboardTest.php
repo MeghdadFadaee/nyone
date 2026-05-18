@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ChannelCategory;
 use App\Models\Broadcast;
 use App\Models\Channel;
 use App\Models\User;
@@ -64,6 +65,25 @@ class DashboardTest extends TestCase
             );
     }
 
+    public function test_home_page_exposes_translated_channel_category_labels(): void
+    {
+        config(['app.locale' => 'es']);
+
+        Channel::factory()->create([
+            'is_live' => true,
+            'category' => ChannelCategory::Music,
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('welcome')
+                ->where('liveChannels.0.category.value', ChannelCategory::Music->value)
+                ->where('liveChannels.0.category.label', __('Music', [], 'es'))
+                ->where('categories', fn ($categories) => $categories->firstWhere('value', ChannelCategory::Music->value)['label'] === __('Music', [], 'es')),
+            );
+    }
+
     public function test_creator_dashboard_exposes_channel_display_media_props(): void
     {
         $user = User::factory()->create();
@@ -101,7 +121,7 @@ class DashboardTest extends TestCase
                 'display_name' => $channel->display_name,
                 'slug' => $channel->slug,
                 'description' => $channel->description,
-                'category_id' => $channel->category_id,
+                'category' => $channel->category?->value,
                 'thumbnail' => UploadedFile::fake()->image('thumbnail.jpg', 1280, 720),
             ])
             ->assertRedirect()
@@ -131,7 +151,7 @@ class DashboardTest extends TestCase
                 'display_name' => $channel->display_name,
                 'slug' => $channel->slug,
                 'description' => $channel->description,
-                'category_id' => $channel->category_id,
+                'category' => $channel->category?->value,
                 'thumbnail' => UploadedFile::fake()->create('thumbnail.txt', 8, 'text/plain'),
             ])
             ->assertRedirect(route('dashboard'))

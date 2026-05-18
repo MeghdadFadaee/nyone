@@ -1,7 +1,6 @@
-export type Category = {
-    id: number;
-    name: string;
-    slug: string;
+export type ChannelCategory = {
+    value: string;
+    label: string;
 };
 
 export type ChannelCard = {
@@ -15,7 +14,7 @@ export type ChannelCard = {
     banner_url: string | null;
     viewer_count: number;
     followers_count: number;
-    category: Category | null;
+    category: ChannelCategory | null;
     broadcast: {
         id: number;
         title: string;
@@ -38,7 +37,7 @@ export type ChannelDetail = {
     is_live: boolean;
     viewer_count: number;
     followers_count: number;
-    category: Category | null;
+    category: ChannelCategory | null;
     owner: {
         id: number;
         name: string;

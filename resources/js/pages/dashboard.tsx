@@ -38,7 +38,7 @@ import {
     update as updateChannelRoute,
 } from '@/routes/creator/channel';
 import { rotate as rotateStreamKeyRoute } from '@/routes/creator/stream-key';
-import type { BroadcastSummary, Category } from '@/types';
+import type { BroadcastSummary, ChannelCategory } from '@/types';
 
 type CreatorChannel = {
     id: number;
@@ -51,7 +51,7 @@ type CreatorChannel = {
     is_live: boolean;
     viewer_count: number;
     stream_key_last_used_at: string | null;
-    category_id: number | null;
+    category: string | null;
     live_broadcast: BroadcastSummary | null;
 };
 
@@ -63,7 +63,7 @@ type Props = {
         ingestServer: string;
         tokenizedPath: string | null;
     };
-    categories: Category[];
+    categories: ChannelCategory[];
     recentBroadcasts: BroadcastSummary[];
 };
 
@@ -90,14 +90,14 @@ export default function Dashboard({
         display_name: '',
         slug: '',
         description: '',
-        category_id: '',
+        category: '',
     });
     const channelForm = useForm({
         _method: 'PATCH',
         display_name: channel?.display_name ?? '',
         slug: channel?.slug ?? '',
         description: channel?.description ?? '',
-        category_id: channel?.category_id ? String(channel.category_id) : '',
+        category: channel?.category ?? '',
         thumbnail: null as File | null,
     });
     const broadcastForm = useForm({
@@ -235,13 +235,16 @@ export default function Dashboard({
                                             placeholder={t('nyone-live')}
                                         />
                                     </Field>
-                                    <Field label="Category">
+                                    <Field
+                                        label="Category"
+                                        error={createForm.errors.category}
+                                    >
                                         <CategorySelect
                                             categories={categories}
-                                            value={createForm.data.category_id}
+                                            value={createForm.data.category}
                                             onChange={(value) =>
                                                 createForm.setData(
-                                                    'category_id',
+                                                    'category',
                                                     value,
                                                 )
                                             }
@@ -440,13 +443,16 @@ export default function Dashboard({
                                             }
                                         />
                                     </Field>
-                                    <Field label="Category">
+                                    <Field
+                                        label="Category"
+                                        error={channelForm.errors.category}
+                                    >
                                         <CategorySelect
                                             categories={categories}
-                                            value={channelForm.data.category_id}
+                                            value={channelForm.data.category}
                                             onChange={(value) =>
                                                 channelForm.setData(
-                                                    'category_id',
+                                                    'category',
                                                     value,
                                                 )
                                             }
@@ -763,7 +769,7 @@ function CategorySelect({
     value,
     onChange,
 }: {
-    categories: Category[];
+    categories: ChannelCategory[];
     value: string;
     onChange: (value: string) => void;
 }) {
@@ -777,8 +783,8 @@ function CategorySelect({
         >
             <option value="">{t('No category')}</option>
             {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                    {category.name}
+                <option key={category.value} value={category.value}>
+                    {category.label}
                 </option>
             ))}
         </select>

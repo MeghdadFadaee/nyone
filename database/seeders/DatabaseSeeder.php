@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
+use App\Enums\ChannelCategory;
 use App\Models\PlatformSetting;
 use App\Models\User;
 use App\Services\Streaming\StreamKeyManager;
@@ -15,17 +15,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        collect([
-            ['name' => 'Gaming', 'slug' => 'gaming'],
-            ['name' => 'Music', 'slug' => 'music'],
-            ['name' => 'Talk Shows', 'slug' => 'talk-shows'],
-            ['name' => 'Education', 'slug' => 'education'],
-            ['name' => 'Creative', 'slug' => 'creative'],
-        ])->each(fn (array $category) => Category::query()->firstOrCreate(
-            ['slug' => $category['slug']],
-            ['name' => $category['name']],
-        ));
-
         PlatformSetting::current();
 
         $admin = User::query()->firstOrNew(['email' => 'admin@nyone.net']);
@@ -47,7 +36,7 @@ class DatabaseSeeder extends Seeder
         ])->save();
 
         $channel = $official->channel()->updateOrCreate([], [
-            'category_id' => Category::query()->where('slug', 'creative')->value('id'),
+            'category' => ChannelCategory::Creative,
             'slug' => 'nyone',
             'display_name' => 'Nyone Official',
             'description' => 'Official updates and live sessions from Nyone.',

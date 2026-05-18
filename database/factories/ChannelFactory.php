@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Category;
+use App\Enums\ChannelCategory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -15,7 +15,7 @@ class ChannelFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'category_id' => Category::factory(),
+            'category' => fake()->randomElement(ChannelCategory::cases())->value,
             'slug' => Str::slug($name),
             'display_name' => Str::headline($name),
             'description' => fake()->sentence(),

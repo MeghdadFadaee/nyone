@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Category;
+use App\Enums\ChannelCategory;
 use App\Models\Channel;
 use App\Models\PlatformSetting;
 use App\Models\StreamKey;
@@ -17,13 +17,12 @@ class CreatorChannelTest extends TestCase
     public function test_user_with_creator_access_can_create_one_channel_and_receives_one_time_stream_key(): void
     {
         $user = User::factory()->create(['can_create_channel' => true]);
-        $category = Category::factory()->create();
 
         $response = $this->actingAs($user)->post(route('creator.channel.store'), [
             'display_name' => 'Nyone Live',
             'slug' => 'nyone-live',
             'description' => 'Live builds and demos.',
-            'category_id' => $category->id,
+            'category' => ChannelCategory::Creative->value,
         ]);
 
         $response
@@ -34,7 +33,7 @@ class CreatorChannelTest extends TestCase
             'user_id' => $user->id,
             'slug' => 'nyone-live',
             'display_name' => 'Nyone Live',
-            'category_id' => $category->id,
+            'category' => ChannelCategory::Creative->value,
         ]);
 
         $this->assertDatabaseCount(StreamKey::class, 1);

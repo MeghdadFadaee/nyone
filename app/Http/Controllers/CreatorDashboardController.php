@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ChannelCategory;
 use App\Models\Broadcast;
-use App\Models\Category;
 use App\Models\Channel;
 use App\Services\Streaming\StreamKeyManager;
 use App\Services\Streaming\ViewerCountStore;
@@ -21,7 +21,7 @@ class CreatorDashboardController extends Controller
     {
         $channel = $request->user()
             ->channel()
-            ->with(['category', 'liveBroadcast', 'streamKey'])
+            ->with(['liveBroadcast', 'streamKey'])
             ->first();
 
         return Inertia::render('dashboard', [
@@ -34,14 +34,7 @@ class CreatorDashboardController extends Controller
                     ? $streamKeys->tokenizedPath($channel, (string) session('plain_stream_key'))
                     : null,
             ],
-            'categories' => Category::query()
-                ->orderBy('name')
-                ->get(['id', 'name', 'slug'])
-                ->map(fn (Category $category) => [
-                    'id' => $category->id,
-                    'name' => $category->name,
-                    'slug' => $category->slug,
-                ]),
+            'categories' => ChannelCategory::options(),
             'recentBroadcasts' => $channel
                 ? $channel->broadcasts()->with('vod')->latest()->limit(10)->get()->map(fn (Broadcast $broadcast) => [
                     'id' => $broadcast->id,
@@ -65,7 +58,7 @@ class CreatorDashboardController extends Controller
             'display_name' => ['required', 'string', 'max:80'],
             'slug' => ['required', 'string', 'min:3', 'max:40', 'alpha_dash:ascii', 'lowercase', 'unique:channels,slug'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category' => ['nullable', Rule::enum(ChannelCategory::class)],
         ]);
 
         $channel = $request->user()->channel()->create([
@@ -92,7 +85,7 @@ class CreatorDashboardController extends Controller
             'display_name' => ['required', 'string', 'max:80'],
             'slug' => ['required', 'string', 'min:3', 'max:40', 'alpha_dash:ascii', 'lowercase', Rule::unique('channels', 'slug')->ignore($channel)],
             'description' => ['nullable', 'string', 'max:1000'],
-            'category_id' => ['nullable', 'exists:categories,id'],
+            'category' => ['nullable', Rule::enum(ChannelCategory::class)],
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
 
@@ -187,7 +180,7 @@ class CreatorDashboardController extends Controller
             'is_live' => $channel->is_live,
             'viewer_count' => $channel->viewer_count,
             'stream_key_last_used_at' => $channel->streamKey?->last_used_at?->toIso8601String(),
-            'category_id' => $channel->category_id,
+            'category' => $channel->category?->value,
             'live_broadcast' => $channel->liveBroadcast ? [
                 'id' => $channel->liveBroadcast->id,
                 'title' => $channel->liveBroadcast->title,

@@ -22,7 +22,7 @@ class ChannelController extends Controller
     ): Response {
         abort_if($channel->isSuspended(), 404);
 
-        $channel->load(['category', 'liveBroadcast', 'user']);
+        $channel->load(['liveBroadcast', 'user']);
         $channel->loadCount('follows');
 
         $currentBroadcast = $channel->liveBroadcast;
@@ -39,11 +39,7 @@ class ChannelController extends Controller
                 'is_live' => $channel->is_live,
                 'viewer_count' => $channel->is_live ? $viewerCounts->current($channel) : 0,
                 'followers_count' => $channel->follows_count,
-                'category' => $channel->category ? [
-                    'id' => $channel->category->id,
-                    'name' => $channel->category->name,
-                    'slug' => $channel->category->slug,
-                ] : null,
+                'category' => $channel->category?->toOption(),
                 'owner' => [
                     'id' => $channel->user->id,
                     'name' => $channel->user->name,

@@ -150,7 +150,7 @@ export default function ChannelShow({
                                         <LiveState channel={channel} />
                                         {channel.category && (
                                             <span className="rounded-md border px-2 py-1 text-xs">
-                                                {channel.category.name}
+                                                {channel.category.label}
                                             </span>
                                         )}
                                     </div>

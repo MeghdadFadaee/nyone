@@ -19,12 +19,12 @@ import { cn } from '@/lib/utils';
 import { dashboard, home, login, register } from '@/routes';
 import { show as showChannel } from '@/routes/channels';
 import { index as supportIndex } from '@/routes/support';
-import type { Category, ChannelCard } from '@/types';
+import type { ChannelCard, ChannelCategory } from '@/types';
 
 type Props = {
     canRegister: boolean;
     liveChannels: ChannelCard[];
-    categories: Category[];
+    categories: ChannelCategory[];
 };
 
 export default function Welcome({
@@ -43,7 +43,7 @@ export default function Welcome({
 
         return liveChannels.filter((channel) => {
             const matchesCategory =
-                category === 'all' || channel.category?.slug === category;
+                category === 'all' || channel.category?.value === category;
             const matchesQuery =
                 normalizedQuery === '' ||
                 channel.display_name.toLowerCase().includes(normalizedQuery) ||
@@ -175,7 +175,7 @@ export default function Welcome({
                                             </span>
                                             <span className="min-w-0 break-words">
                                                 {featuredChannel.category
-                                                    ?.name ??
+                                                    ?.label ??
                                                     t('Uncategorized')}
                                             </span>
                                             <span className="inline-flex items-center gap-1">
@@ -292,8 +292,11 @@ export default function Welcome({
                                         {t('All categories')}
                                     </option>
                                     {categories.map((item) => (
-                                        <option key={item.id} value={item.slug}>
-                                            {item.name}
+                                        <option
+                                            key={item.value}
+                                            value={item.value}
+                                        >
+                                            {item.label}
                                         </option>
                                     ))}
                                 </select>
@@ -356,7 +359,7 @@ function StreamCard({ channel }: { channel: ChannelCard }) {
                 </div>
                 <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
                     <span className="truncate">
-                        {channel.category?.name ?? t('Uncategorized')}
+                        {channel.category?.label ?? t('Uncategorized')}
                     </span>
                     <span className="shrink-0">
                         {t(':count viewers', {
