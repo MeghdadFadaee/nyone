@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { VideoPlayer } from '@/components/video-player';
 import { useInitials } from '@/hooks/use-initials';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { home, login } from '@/routes';
 import { follow, unfollow } from '@/routes/channels';
@@ -84,6 +85,7 @@ export default function ChannelShow({
     isFollowing,
 }: Props) {
     const { auth } = usePage().props;
+    const { t } = useTranslation();
     const [chatOpen, setChatOpen] = useState(false);
     const chatForm = useForm({ body: '' });
     const currentViewers = viewerStats.current;
@@ -160,10 +162,14 @@ export default function ChannelShow({
                                         <span>{channel.display_name}</span>
                                         <span className="inline-flex items-center gap-1">
                                             <Users className="size-4" />
-                                            {currentViewers} viewers
+                                            {t(':count viewers', {
+                                                count: currentViewers,
+                                            })}
                                         </span>
                                         <span>
-                                            {channel.followers_count} followers
+                                            {t(':count followers', {
+                                                count: channel.followers_count,
+                                            })}
                                         </span>
                                     </div>
                                     {channel.description && (
@@ -185,7 +191,7 @@ export default function ChannelShow({
                                             className="xl:hidden"
                                         >
                                             <MessageSquare className="size-4" />
-                                            Chat
+                                            {t('Chat')}
                                         </Button>
                                     </SheetTrigger>
                                     <SheetContent
@@ -193,7 +199,9 @@ export default function ChannelShow({
                                         className="h-[82svh] rounded-t-md"
                                     >
                                         <SheetHeader>
-                                            <SheetTitle>Live chat</SheetTitle>
+                                            <SheetTitle>
+                                                {t('Live chat')}
+                                            </SheetTitle>
                                         </SheetHeader>
                                         <ChatPanel
                                             channel={channel}
@@ -223,13 +231,15 @@ export default function ChannelShow({
                                                     'fill-current text-primary',
                                             )}
                                         />
-                                        {isFollowing ? 'Following' : 'Follow'}
+                                        {isFollowing
+                                            ? t('Following')
+                                            : t('Follow')}
                                     </Button>
                                 ) : (
                                     <Button asChild variant="outline">
                                         <Link href={login()}>
                                             <LogIn className="size-4" />
-                                            Log in to follow
+                                            {t('Log in to follow')}
                                         </Link>
                                     </Button>
                                 )}
@@ -241,11 +251,13 @@ export default function ChannelShow({
                                 <div className="flex items-center gap-2">
                                     <Video className="size-5 text-primary" />
                                     <h2 className="font-semibold">
-                                        Recent VODs
+                                        {t('Recent VODs')}
                                     </h2>
                                 </div>
                                 <span className="text-sm text-muted-foreground">
-                                    {vods.length} available
+                                    {t(':count available', {
+                                        count: vods.length,
+                                    })}
                                 </span>
                             </div>
                             {vods.length > 0 ? (
@@ -256,14 +268,14 @@ export default function ChannelShow({
                                 </div>
                             ) : (
                                 <div className="rounded-md border border-dashed bg-card p-6 text-sm text-muted-foreground">
-                                    No public recordings yet.
+                                    {t('No public recordings yet.')}
                                 </div>
                             )}
                         </section>
                     </section>
                 </main>
 
-                <aside className="hidden min-h-[480px] border-l bg-card xl:flex">
+                <aside className="hidden min-h-[480px] border-s bg-card xl:flex">
                     <ChatPanel
                         channel={channel}
                         authUser={Boolean(auth.user)}
@@ -288,6 +300,8 @@ ChannelShow.layout = {
 };
 
 function OfflinePlayer({ channel }: { channel: ChannelDetail }) {
+    const { t } = useTranslation();
+
     return (
         <div className="relative grid aspect-video min-h-[280px] place-items-center overflow-hidden">
             {channel.banner_url ? (
@@ -304,11 +318,14 @@ function OfflinePlayer({ channel }: { channel: ChannelDetail }) {
                 </span>
                 <div>
                     <div className="text-xl font-semibold">
-                        {channel.display_name} is offline
+                        {t(':channel is offline', {
+                            channel: channel.display_name,
+                        })}
                     </div>
                     <p className="mt-1 text-sm text-white/70">
-                        Recent recordings remain available below when the
-                        creator publishes VODs.
+                        {t(
+                            'Recent recordings remain available below when the creator publishes VODs.',
+                        )}
                     </p>
                 </div>
             </div>
@@ -334,6 +351,7 @@ function ChatPanel({
     compact?: boolean;
 }) {
     const getInitials = useInitials();
+    const { t } = useTranslation();
     const inputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
@@ -383,9 +401,11 @@ function ChatPanel({
                 <div className="flex items-center gap-2">
                     <MessageSquare className="size-5 text-primary" />
                     <div>
-                        <h2 className="font-semibold">Live chat</h2>
+                        <h2 className="font-semibold">{t('Live chat')}</h2>
                         <p className="text-xs text-muted-foreground">
-                            {formatMessageCount(messages.length)}
+                            {t(':count messages', {
+                                count: messages.length,
+                            })}
                         </p>
                     </div>
                 </div>
@@ -438,13 +458,13 @@ function ChatPanel({
                                             )}
                                         >
                                             {isOwnMessage
-                                                ? 'You'
+                                                ? t('You')
                                                 : message.user.name}
                                         </span>
                                         {isChannelOwner && (
                                             <span className="inline-flex shrink-0 items-center gap-1 rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
                                                 <Crown className="size-3" />
-                                                Owner
+                                                {t('Owner')}
                                             </span>
                                         )}
                                         {message.created_at && (
@@ -454,7 +474,7 @@ function ChatPanel({
                                                     message.created_at,
                                                 )}
                                                 className={cn(
-                                                    'ml-auto shrink-0 text-[11px] text-muted-foreground',
+                                                    'ms-auto shrink-0 text-[11px] text-muted-foreground',
                                                     isChannelOwner &&
                                                         'text-primary/80',
                                                 )}
@@ -484,8 +504,10 @@ function ChatPanel({
                             <MessageSquare className="size-5 text-primary" />
                             <span>
                                 {channel.is_live
-                                    ? 'No messages yet.'
-                                    : 'Chat appears when the channel is live.'}
+                                    ? t('No messages yet.')
+                                    : t(
+                                          'Chat appears when the channel is live.',
+                                      )}
                             </span>
                         </div>
                     )}
@@ -504,8 +526,8 @@ function ChatPanel({
                                 }
                                 placeholder={
                                     channel.is_live
-                                        ? 'Send a message'
-                                        : 'Channel is offline'
+                                        ? t('Send a message')
+                                        : t('Channel is offline')
                                 }
                                 disabled={!channel.is_live || form.processing}
                                 maxLength={500}
@@ -518,7 +540,7 @@ function ChatPanel({
                                     disabled={
                                         !channel.is_live || form.processing
                                     }
-                                    aria-label="Open emoji picker"
+                                    aria-label={t('Open emoji picker')}
                                     aria-expanded={emojiPickerOpen}
                                     onClick={() =>
                                         setEmojiPickerOpen((open) => !open)
@@ -527,12 +549,14 @@ function ChatPanel({
                                     <SmilePlus className="size-4" />
                                 </Button>
                                 {emojiPickerOpen && channel.is_live && (
-                                    <div className="absolute right-0 bottom-full z-10 mb-2 grid w-52 grid-cols-4 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
+                                    <div className="absolute end-0 bottom-full z-10 mb-2 grid w-52 grid-cols-4 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
                                         {chatEmojis.map((emoji) => (
                                             <button
                                                 key={emoji}
                                                 type="button"
-                                                aria-label={`Insert ${emoji}`}
+                                                aria-label={t('Insert :emoji', {
+                                                    emoji,
+                                                })}
                                                 className="flex size-10 items-center justify-center rounded-md text-lg hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                                                 onClick={() =>
                                                     insertEmoji(emoji)
@@ -548,7 +572,7 @@ function ChatPanel({
                                 type="submit"
                                 size="icon"
                                 disabled={!canSend}
-                                aria-label="Send message"
+                                aria-label={t('Send message')}
                             >
                                 <Send className="size-4" />
                             </Button>
@@ -562,7 +586,7 @@ function ChatPanel({
                             >
                                 {form.errors.body ??
                                     (!channel.is_live
-                                        ? 'Channel is offline'
+                                        ? t('Channel is offline')
                                         : '')}
                             </span>
                             <span
@@ -577,16 +601,12 @@ function ChatPanel({
                     </form>
                 ) : (
                     <Button asChild variant="outline" className="w-full">
-                        <Link href={login()}>Log in to chat</Link>
+                        <Link href={login()}>{t('Log in to chat')}</Link>
                     </Button>
                 )}
             </div>
         </div>
     );
-}
-
-function formatMessageCount(count: number): string {
-    return count === 1 ? '1 message' : `${count} messages`;
 }
 
 function formatChatTime(value: string): string {
@@ -601,6 +621,8 @@ function formatChatDateTime(value: string): string {
 }
 
 function VodCard({ vod }: { vod: VodSummary }) {
+    const { t } = useTranslation();
+
     return (
         <div className="overflow-hidden rounded-md border bg-card">
             <div className="grid aspect-video place-items-center bg-zinc-950 text-white">
@@ -610,19 +632,20 @@ function VodCard({ vod }: { vod: VodSummary }) {
                 <div>
                     <div className="line-clamp-2 font-medium">{vod.title}</div>
                     <div className="mt-1 text-sm text-muted-foreground">
-                        Expires{' '}
-                        {vod.expires_at
-                            ? new Date(vod.expires_at).toLocaleDateString()
-                            : 'later'}
+                        {t('Expires :date', {
+                            date: vod.expires_at
+                                ? new Date(vod.expires_at).toLocaleDateString()
+                                : t('later'),
+                        })}
                     </div>
                 </div>
                 {vod.playback_url ? (
                     <Button asChild variant="outline" size="sm">
-                        <a href={vod.playback_url}>Watch VOD</a>
+                        <a href={vod.playback_url}>{t('Watch VOD')}</a>
                     </Button>
                 ) : (
                     <div className="text-sm text-muted-foreground">
-                        Processing recording
+                        {t('Processing recording')}
                     </div>
                 )}
             </div>
@@ -637,6 +660,8 @@ function LiveState({
     channel: ChannelDetail;
     compact?: boolean;
 }) {
+    const { t } = useTranslation();
+
     if (channel.is_live) {
         return (
             <span
@@ -646,14 +671,14 @@ function LiveState({
                 )}
             >
                 <span className="live-pulse size-1.5 rounded-full bg-white" />
-                LIVE
+                {t('LIVE')}
             </span>
         );
     }
 
     return (
         <span className="rounded-md border px-2 py-1 text-xs text-muted-foreground">
-            Offline
+            {t('Offline')}
         </span>
     );
 }

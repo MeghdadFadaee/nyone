@@ -29,8 +29,8 @@ class AdminChannelCreationController extends Controller
         return back()->with(
             'success',
             $settings->channel_creation_open
-                ? 'All verified users can create channels.'
-                : 'Channel creation now requires admin approval.',
+                ? __('All verified users can create channels.')
+                : __('Channel creation now requires admin approval.'),
         );
     }
 
@@ -51,8 +51,8 @@ class AdminChannelCreationController extends Controller
         return back()->with(
             'success',
             $user->can_create_channel
-                ? 'User can create a channel.'
-                : 'User channel creation access removed.',
+                ? __('User can create a channel.')
+                : __('User channel creation access removed.'),
         );
     }
 

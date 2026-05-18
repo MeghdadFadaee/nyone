@@ -64,9 +64,9 @@ class SupportAttachmentFile implements ValidationRule
                 ],
             ],
             [
-                'attachment.file' => 'Attachment upload failed. Try the file again or choose a different file.',
-                'attachment.max' => 'Attachments must be 200 MB or smaller.',
-                'attachment.mimetypes' => 'Unsupported attachment type. Upload media, PDF, text/data, Office, OpenDocument, or archive files.',
+                'attachment.file' => __('Attachment upload failed. Try the file again or choose a different file.'),
+                'attachment.max' => __('Attachments must be 200 MB or smaller.'),
+                'attachment.mimetypes' => __('Unsupported attachment type. Upload media, PDF, text/data, Office, OpenDocument, or archive files.'),
             ],
         );
 

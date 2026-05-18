@@ -58,8 +58,8 @@ class CreatorDashboardController extends Controller
 
     public function storeChannel(Request $request, StreamKeyManager $streamKeys): RedirectResponse
     {
-        abort_if($request->user()->channel()->exists(), 422, 'This account already owns a channel.');
-        abort_unless($request->user()->canCreateChannel(), 403, 'An admin must enable channel creation for this account.');
+        abort_if($request->user()->channel()->exists(), 422, __('This account already owns a channel.'));
+        abort_unless($request->user()->canCreateChannel(), 403, __('An admin must enable channel creation for this account.'));
 
         $validated = $request->validate([
             'display_name' => ['required', 'string', 'max:80'],
@@ -79,7 +79,7 @@ class CreatorDashboardController extends Controller
         return redirect()
             ->route('dashboard')
             ->with('plain_stream_key', $plainStreamKey)
-            ->with('success', 'Channel created. Save the stream key now; it will not be shown again.');
+            ->with('success', __('Channel created. Save the stream key now; it will not be shown again.'));
     }
 
     public function updateChannel(Request $request): RedirectResponse
@@ -112,7 +112,7 @@ class CreatorDashboardController extends Controller
             'slug' => Str::slug($validated['slug']),
         ]);
 
-        return back()->with('success', 'Channel updated.');
+        return back()->with('success', __('Channel updated.'));
     }
 
     public function rotateStreamKey(Request $request, StreamKeyManager $streamKeys): RedirectResponse
@@ -125,7 +125,7 @@ class CreatorDashboardController extends Controller
 
         return back()
             ->with('plain_stream_key', $plainStreamKey)
-            ->with('success', 'Stream key rotated. Update OBS before going live again.');
+            ->with('success', __('Stream key rotated. Update OBS before going live again.'));
     }
 
     public function storeBroadcast(Request $request): RedirectResponse
@@ -137,7 +137,7 @@ class CreatorDashboardController extends Controller
         abort_if(
             $channel->broadcasts()->whereIn('status', [Broadcast::STATUS_PENDING, Broadcast::STATUS_LIVE])->exists(),
             422,
-            'Finish the current broadcast before creating another.',
+            __('Finish the current broadcast before creating another.'),
         );
 
         $validated = $request->validate([
@@ -152,7 +152,7 @@ class CreatorDashboardController extends Controller
             'mediamtx_path' => $channel->slug,
         ]);
 
-        return back()->with('success', 'Broadcast is ready. Start streaming from OBS.');
+        return back()->with('success', __('Broadcast is ready. Start streaming from OBS.'));
     }
 
     public function stopBroadcast(Request $request, Broadcast $broadcast, ViewerCountStore $viewerCounts): RedirectResponse
@@ -171,7 +171,7 @@ class CreatorDashboardController extends Controller
         ])->save();
         $viewerCounts->forget($broadcast->channel);
 
-        return back()->with('success', 'Broadcast ended.');
+        return back()->with('success', __('Broadcast ended.'));
     }
 
     private function channelPayload(Channel $channel): array

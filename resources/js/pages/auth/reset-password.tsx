@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useTranslation } from '@/lib/translations';
 import { update } from '@/routes/password';
 
 type Props = {
@@ -14,9 +15,11 @@ type Props = {
 };
 
 export default function ResetPassword({ token, email, passwordRules }: Props) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Reset password" />
+            <Head title={t('Reset password')} />
 
             <Form
                 {...update.form()}
@@ -50,7 +53,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
                                 autoFocus
-                                placeholder="Password"
+                                placeholder={t('Password')}
                                 passwordrules={passwordRules}
                             />
                             <InputError message={errors.password} />
@@ -65,7 +68,7 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
                                 name="password_confirmation"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
-                                placeholder="Confirm password"
+                                placeholder={t('Confirm password')}
                                 passwordrules={passwordRules}
                             />
                             <InputError

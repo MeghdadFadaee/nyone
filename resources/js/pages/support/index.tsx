@@ -6,6 +6,7 @@ import { SupportAttachmentErrors } from '@/components/support-attachment-errors'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import {
     index as supportIndex,
@@ -24,6 +25,7 @@ type Props = {
 
 export default function SupportIndex({ categories, conversations }: Props) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { t } = useTranslation();
     const form = useForm({
         category: categories[0]?.value ?? 'bug',
         subject: '',
@@ -53,7 +55,7 @@ export default function SupportIndex({ categories, conversations }: Props) {
 
     return (
         <>
-            <Head title="Contact admin" />
+            <Head title={t('Contact admin')} />
             <div className="grid gap-6 p-4 md:p-6 xl:grid-cols-[minmax(0,1fr)_420px]">
                 <section className="grid content-start gap-4">
                     <div className="flex flex-col gap-4 rounded-md border bg-card p-5 md:flex-row md:items-center md:justify-between">
@@ -63,16 +65,19 @@ export default function SupportIndex({ categories, conversations }: Props) {
                             </span>
                             <div>
                                 <h1 className="text-2xl font-semibold">
-                                    Contact admin
+                                    {t('Contact admin')}
                                 </h1>
                                 <p className="text-sm text-muted-foreground">
-                                    Bug reports, suggestions, channel requests,
-                                    and account questions.
+                                    {t(
+                                        'Bug reports, suggestions, channel requests, and account questions.',
+                                    )}
                                 </p>
                             </div>
                         </div>
                         <div className="rounded-md border bg-background px-3 py-2 text-sm">
-                            {conversations.length} threads
+                            {t(':count threads', {
+                                count: conversations.length,
+                            })}
                         </div>
                     </div>
 
@@ -114,7 +119,7 @@ export default function SupportIndex({ categories, conversations }: Props) {
 
                         {conversations.length === 0 && (
                             <div className="grid min-h-64 place-items-center rounded-md border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">
-                                No conversations yet.
+                                {t('No conversations yet.')}
                             </div>
                         )}
                     </div>
@@ -122,9 +127,11 @@ export default function SupportIndex({ categories, conversations }: Props) {
 
                 <section className="rounded-md border bg-card p-5 shadow-sm">
                     <div className="mb-5">
-                        <h2 className="font-semibold">New conversation</h2>
+                        <h2 className="font-semibold">
+                            {t('New conversation')}
+                        </h2>
                         <p className="text-sm text-muted-foreground">
-                            Attach up to 3 files, 200 MB each.
+                            {t('Attach up to 3 files, 200 MB each.')}
                         </p>
                     </div>
                     <form onSubmit={submit} className="grid gap-4">
@@ -237,6 +244,8 @@ function Field({
 }
 
 function StatusBadge({ status }: { status: 'open' | 'closed' }) {
+    const { t } = useTranslation();
+
     return (
         <span
             className={cn(
@@ -246,7 +255,7 @@ function StatusBadge({ status }: { status: 'open' | 'closed' }) {
                     : 'text-muted-foreground',
             )}
         >
-            {status === 'open' ? 'OPEN' : 'CLOSED'}
+            {status === 'open' ? t('OPEN') : t('CLOSED')}
         </span>
     );
 }

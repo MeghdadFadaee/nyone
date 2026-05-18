@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { dashboard as dashboardRoute } from '@/routes';
 import { show as showChannel } from '@/routes/channels';
@@ -75,6 +76,7 @@ export default function Dashboard({
     recentBroadcasts,
 }: Props) {
     const [copiedText, copy] = useClipboard();
+    const { t } = useTranslation();
     const [stopTarget, setStopTarget] = useState<BroadcastSummary | null>(null);
     const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState<
         string | null
@@ -155,7 +157,7 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Creator Studio" />
+            <Head title={t('Creator Studio')} />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 rounded-md border bg-card p-5 md:flex-row md:items-center md:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
@@ -168,16 +170,17 @@ export default function Dashboard({
                                 />
                                 {pendingBroadcast && !liveBroadcast && (
                                     <span className="border-warning/40 bg-warning/10 text-warning rounded-md border px-2 py-1 text-xs font-medium">
-                                        READY
+                                        {t('READY')}
                                     </span>
                                 )}
                             </div>
                             <h1 className="truncate text-2xl font-semibold">
-                                {channel?.display_name ?? 'Creator Studio'}
+                                {channel?.display_name ?? t('Creator Studio')}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                Prepare broadcasts, secure your stream key, and
-                                monitor the current session.
+                                {t(
+                                    'Prepare broadcasts, secure your stream key, and monitor the current session.',
+                                )}
                             </p>
                         </div>
                     </div>
@@ -214,7 +217,7 @@ export default function Dashboard({
                                                     event.target.value,
                                                 )
                                             }
-                                            placeholder="Nyone Live"
+                                            placeholder={t('Nyone Live')}
                                         />
                                     </Field>
                                     <Field
@@ -229,7 +232,7 @@ export default function Dashboard({
                                                     event.target.value.toLowerCase(),
                                                 )
                                             }
-                                            placeholder="nyone-live"
+                                            placeholder={t('nyone-live')}
                                         />
                                     </Field>
                                     <Field label="Category">
@@ -284,9 +287,9 @@ export default function Dashboard({
                                 <div className="border-warning/40 bg-warning/10 text-warning flex items-start gap-3 rounded-md border p-3 text-sm">
                                     <ShieldAlert className="mt-0.5 size-4 shrink-0" />
                                     <span>
-                                        This account can browse and follow
-                                        channels, but cannot create a channel
-                                        yet.
+                                        {t(
+                                            'This account can browse and follow channels, but cannot create a channel yet.',
+                                        )}
                                     </span>
                                 </div>
                             </Panel>
@@ -306,10 +309,10 @@ export default function Dashboard({
                                     label="Broadcast state"
                                     value={
                                         channel.is_live
-                                            ? 'Live'
+                                            ? t('Live')
                                             : pendingBroadcast
-                                              ? 'Ready'
-                                              : 'Offline'
+                                              ? t('Ready')
+                                              : t('Offline')
                                     }
                                 />
                                 <MetricCard
@@ -323,7 +326,7 @@ export default function Dashboard({
                                             ? new Date(
                                                   channel.stream_key_last_used_at,
                                               ).toLocaleDateString()
-                                            : 'Never'
+                                            : t('Never')
                                     }
                                 />
                             </section>
@@ -348,7 +351,9 @@ export default function Dashboard({
                                                     event.target.value,
                                                 )
                                             }
-                                            placeholder="Building Nyone live"
+                                            placeholder={t(
+                                                'Building Nyone live',
+                                            )}
                                             disabled={
                                                 Boolean(liveBroadcast) ||
                                                 Boolean(pendingBroadcast)
@@ -373,7 +378,7 @@ export default function Dashboard({
                                                 Boolean(pendingBroadcast)
                                             }
                                         />
-                                        Record VOD
+                                        {t('Record VOD')}
                                     </label>
                                     <Button
                                         type="submit"
@@ -390,8 +395,9 @@ export default function Dashboard({
                                 </form>
                                 {(liveBroadcast ?? pendingBroadcast) && (
                                     <div className="border-warning/40 bg-warning/10 text-warning mt-4 rounded-md border p-3 text-sm">
-                                        Finish the current broadcast before
-                                        preparing another session.
+                                        {t(
+                                            'Finish the current broadcast before preparing another session.',
+                                        )}
                                     </div>
                                 )}
                             </Panel>
@@ -466,7 +472,7 @@ export default function Dashboard({
                                                     />
                                                 ) : (
                                                     <div className="grid h-full place-items-center text-xs text-muted-foreground">
-                                                        No thumbnail
+                                                        {t('No thumbnail')}
                                                     </div>
                                                 )}
                                             </div>
@@ -486,8 +492,9 @@ export default function Dashboard({
                                                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                                     <ImagePlus className="size-3.5" />
                                                     <span>
-                                                        Use a 16:9 JPG, PNG, or
-                                                        WebP up to 4 MB.
+                                                        {t(
+                                                            'Use a 16:9 JPG, PNG, or WebP up to 4 MB.',
+                                                        )}
                                                     </span>
                                                     {channelForm.data
                                                         .thumbnail && (
@@ -584,7 +591,9 @@ export default function Dashboard({
                                         label="Stream key"
                                         value={
                                             streaming.tokenizedPath ??
-                                            'Rotate the key to reveal it once.'
+                                            t(
+                                                'Rotate the key to reveal it once.',
+                                            )
                                         }
                                         copied={
                                             copiedText ===
@@ -595,8 +604,9 @@ export default function Dashboard({
                                     />
                                     {plainStreamKey && (
                                         <div className="border-warning/40 bg-warning/10 text-warning rounded-md border p-3">
-                                            This key is shown once. Store it in
-                                            OBS before leaving this page.
+                                            {t(
+                                                'This key is shown once. Store it in OBS before leaving this page.',
+                                            )}
                                         </div>
                                     )}
                                     <Button
@@ -624,8 +634,8 @@ export default function Dashboard({
                                             </div>
                                             <div className="text-sm text-muted-foreground">
                                                 {liveBroadcast.recording_enabled
-                                                    ? 'Recording enabled'
-                                                    : 'Live only'}
+                                                    ? t('Recording enabled')
+                                                    : t('Live only')}
                                             </div>
                                         </div>
                                         <Button
@@ -647,8 +657,9 @@ export default function Dashboard({
                                                 {pendingBroadcast.title}
                                             </div>
                                             <div className="text-sm text-muted-foreground">
-                                                Start OBS to push the session
-                                                live.
+                                                {t(
+                                                    'Start OBS to push the session live.',
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -667,10 +678,11 @@ export default function Dashboard({
             >
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Stop broadcast?</DialogTitle>
+                        <DialogTitle>{t('Stop broadcast?')}</DialogTitle>
                         <DialogDescription>
-                            This ends the live session and clears the channel's
-                            live state. Viewers will see the offline screen.
+                            {t(
+                                "This ends the live session and clears the channel's live state. Viewers will see the offline screen.",
+                            )}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -709,13 +721,15 @@ function Panel({
     description?: string;
     children: ReactNode;
 }) {
+    const { t } = useTranslation();
+
     return (
         <section className="min-w-0 rounded-md border bg-card p-5 shadow-sm">
             <div className="mb-5">
-                <h2 className="font-semibold">{title}</h2>
+                <h2 className="font-semibold">{t(title)}</h2>
                 {description && (
                     <p className="text-sm text-muted-foreground">
-                        {description}
+                        {t(description)}
                     </p>
                 )}
             </div>
@@ -753,13 +767,15 @@ function CategorySelect({
     value: string;
     onChange: (value: string) => void;
 }) {
+    const { t } = useTranslation();
+
     return (
         <select
             value={value}
             onChange={(event) => onChange(event.target.value)}
             className="h-9 rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
-            <option value="">No category</option>
+            <option value="">{t('No category')}</option>
             {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                     {category.name}
@@ -782,10 +798,12 @@ function CopyRow({
     muted?: boolean;
     onCopy: (text: string) => Promise<boolean>;
 }) {
+    const { t } = useTranslation();
+
     return (
         <div className="grid min-w-0 gap-2">
             <div className="text-xs font-medium text-muted-foreground uppercase">
-                {label}
+                {t(label)}
             </div>
             <div className="flex min-w-0 gap-2">
                 <code
@@ -815,9 +833,11 @@ function CopyRow({
 }
 
 function MetricCard({ label, value }: { label: string; value: string }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rounded-md border bg-card p-4 shadow-sm">
-            <div className="text-sm text-muted-foreground">{label}</div>
+            <div className="text-sm text-muted-foreground">{t(label)}</div>
             <div className="mt-1 text-2xl font-semibold">{value}</div>
         </div>
     );
@@ -831,15 +851,24 @@ function BroadcastRow({
     onStop: () => void;
 }) {
     const active = broadcast.status !== 'ended';
+    const { t } = useTranslation();
+    const status = t(broadcast.status ?? 'unknown');
+    const mode = broadcast.recording_enabled ? t('recording') : t('live only');
 
     return (
         <div className="flex flex-col gap-3 rounded-md border bg-background p-3 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
                 <div className="truncate font-medium">{broadcast.title}</div>
                 <div className="text-sm text-muted-foreground">
-                    {broadcast.status ?? 'unknown'} -{' '}
-                    {broadcast.recording_enabled ? 'recording' : 'live only'}
-                    {broadcast.has_vod ? ' - VOD ready' : ''}
+                    {broadcast.has_vod
+                        ? t(':status - :mode - VOD ready', {
+                              status,
+                              mode,
+                          })
+                        : t(':status - :mode', {
+                              status,
+                              mode,
+                          })}
                 </div>
             </div>
             {active && (
@@ -861,11 +890,13 @@ function StatusPill({
     ready?: boolean;
     viewers?: number;
 }) {
+    const { t } = useTranslation();
+
     if (live) {
         return (
             <span className="bg-live inline-flex items-center gap-2 rounded-md px-2 py-1 text-xs font-semibold text-white">
                 <span className="live-pulse size-1.5 rounded-full bg-white" />
-                LIVE - {viewers} viewers
+                {t('LIVE - :count viewers', { count: viewers })}
             </span>
         );
     }
@@ -873,14 +904,14 @@ function StatusPill({
     if (ready) {
         return (
             <span className="border-warning/40 bg-warning/10 text-warning rounded-md border px-2 py-1 text-xs font-medium">
-                READY
+                {t('READY')}
             </span>
         );
     }
 
     return (
         <span className="rounded-md border px-2 py-1 text-xs text-muted-foreground">
-            OFFLINE
+            {t('OFFLINE')}
         </span>
     );
 }
@@ -908,6 +939,8 @@ function ReadinessRow({
     done?: boolean;
     label: string;
 }) {
+    const { t } = useTranslation();
+
     return (
         <div className="flex items-center gap-3 border-b py-3 last:border-b-0">
             <span
@@ -918,15 +951,17 @@ function ReadinessRow({
             >
                 {done && <Check className="size-3" />}
             </span>
-            <span className="text-sm">{label}</span>
+            <span className="text-sm">{t(label)}</span>
         </div>
     );
 }
 
 function EmptyState({ text }: { text: string }) {
+    const { t } = useTranslation();
+
     return (
         <div className="rounded-md border border-dashed bg-background p-6 text-center text-sm text-muted-foreground">
-            {text}
+            {t(text)}
         </div>
     );
 }

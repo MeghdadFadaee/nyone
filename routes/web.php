@@ -9,12 +9,14 @@ use App\Http\Controllers\ChatMessageController;
 use App\Http\Controllers\CreatorDashboardController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MediaMtxController;
 use App\Http\Controllers\SupportAttachmentController;
 use App\Http\Controllers\SupportConversationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::post('language', LanguageController::class)->name('language.update');
 Route::get('channels/{channel:slug}', [ChannelController::class, 'show'])->name('channels.show');
 
 Route::prefix('internal/mediamtx')->name('internal.mediamtx.')->group(function () {
