@@ -2,7 +2,6 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     Compass,
-    LifeBuoy,
     LayoutDashboard,
     Radio,
     Search,
@@ -18,7 +17,6 @@ import { useTranslation } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { dashboard, home, login, register } from '@/routes';
 import { show as showChannel } from '@/routes/channels';
-import { index as supportIndex } from '@/routes/support';
 import type { ChannelCard, ChannelCategory } from '@/types';
 
 type Props = {
@@ -72,48 +70,15 @@ export default function Welcome({
                             <span>Nyone</span>
                         </Link>
 
-                        <nav className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
-                            <Link
-                                href={home()}
-                                className="rounded-md px-3 py-2 text-foreground"
-                            >
-                                {t('Live')}
-                            </Link>
-                            {auth.user && (
-                                <>
-                                    <Link
-                                        href={dashboard()}
-                                        className="rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
-                                    >
-                                        {t('Studio')}
-                                    </Link>
-                                    <Link
-                                        href={supportIndex()}
-                                        className="rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
-                                    >
-                                        {t('Contact admin')}
-                                    </Link>
-                                </>
-                            )}
-                        </nav>
-
                         <div className="ms-auto flex items-center gap-2">
                             <LanguageSwitcher />
                             {auth.user ? (
-                                <>
-                                    <Button asChild size="sm">
-                                        <Link href={dashboard()}>
-                                            <LayoutDashboard className="size-4" />
-                                            {t('Studio')}
-                                        </Link>
-                                    </Button>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={supportIndex()}>
-                                            <LifeBuoy className="size-4" />
-                                            {t('Contact admin')}
-                                        </Link>
-                                    </Button>
-                                </>
+                                <Button asChild size="sm">
+                                    <Link href={dashboard()}>
+                                        <LayoutDashboard className="size-4" />
+                                        {t('Studio')}
+                                    </Link>
+                                </Button>
                             ) : (
                                 <>
                                     <Button asChild variant="ghost" size="sm">
