@@ -11,6 +11,7 @@ import {
     Video,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslation } from '@/lib/translations';
@@ -96,7 +97,8 @@ export default function Welcome({
                             )}
                         </nav>
 
-                        <div className="ml-auto flex items-center gap-2">
+                        <div className="ms-auto flex items-center gap-2">
+                            <LanguageSwitcher />
                             {auth.user ? (
                                 <>
                                     <Button asChild size="sm">
@@ -182,9 +184,9 @@ export default function Welcome({
                                                     count: featuredChannel.viewer_count,
                                                 })}
                                             </span>
-                                            <span className="inline-flex shrink-0 items-center gap-1 text-primary sm:ml-auto">
+                                            <span className="inline-flex shrink-0 items-center gap-1 text-primary sm:ms-auto">
                                                 {t('Watch')}
-                                                <ArrowRight className="size-4" />
+                                                <ArrowRight className="size-4 rtl:rotate-180" />
                                             </span>
                                         </div>
                                     </div>
@@ -269,14 +271,14 @@ export default function Welcome({
                             </div>
                             <div className="flex flex-col gap-2 sm:flex-row">
                                 <div className="relative">
-                                    <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
+                                    <Search className="absolute start-3 top-2.5 size-4 text-muted-foreground" />
                                     <Input
                                         value={query}
                                         onChange={(event) =>
                                             setQuery(event.target.value)
                                         }
                                         placeholder={t('Search live channels')}
-                                        className="pl-9 sm:w-72"
+                                        className="ps-9 sm:w-72"
                                     />
                                 </div>
                                 <select
@@ -399,7 +401,7 @@ function Thumbnail({
                     </div>
                 </div>
             )}
-            <div className="absolute top-3 left-3">
+            <div className="absolute start-3 top-3">
                 <LiveBadge compact />
             </div>
         </div>

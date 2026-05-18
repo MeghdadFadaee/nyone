@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { useTranslation } from '@/lib/translations';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
@@ -12,7 +13,8 @@ export default function AuthSimpleLayout({
     const { t } = useTranslation();
 
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+        <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
+            <LanguageSwitcher className="absolute end-4 top-4" />
             <div className="w-full max-w-sm rounded-md border bg-card p-6 shadow-sm">
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col items-center gap-4">

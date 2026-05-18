@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { LayoutGrid, LifeBuoy, Radio, Shield } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -19,7 +20,7 @@ import { index as supportIndex } from '@/routes/support';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
-    const { auth } = usePage().props;
+    const { auth, localization } = usePage().props;
     const mainNavItems: NavItem[] = [
         {
             title: 'Live',
@@ -52,7 +53,11 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar
+            collapsible="icon"
+            side={localization.isRtl ? 'right' : 'left'}
+            variant="inset"
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -70,6 +75,7 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <LanguageSwitcher variant="sidebar" align="start" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

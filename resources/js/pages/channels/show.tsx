@@ -275,7 +275,7 @@ export default function ChannelShow({
                     </section>
                 </main>
 
-                <aside className="hidden min-h-[480px] border-l bg-card xl:flex">
+                <aside className="hidden min-h-[480px] border-s bg-card xl:flex">
                     <ChatPanel
                         channel={channel}
                         authUser={Boolean(auth.user)}
@@ -474,7 +474,7 @@ function ChatPanel({
                                                     message.created_at,
                                                 )}
                                                 className={cn(
-                                                    'ml-auto shrink-0 text-[11px] text-muted-foreground',
+                                                    'ms-auto shrink-0 text-[11px] text-muted-foreground',
                                                     isChannelOwner &&
                                                         'text-primary/80',
                                                 )}
@@ -549,7 +549,7 @@ function ChatPanel({
                                     <SmilePlus className="size-4" />
                                 </Button>
                                 {emojiPickerOpen && channel.is_live && (
-                                    <div className="absolute right-0 bottom-full z-10 mb-2 grid w-52 grid-cols-4 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
+                                    <div className="absolute end-0 bottom-full z-10 mb-2 grid w-52 grid-cols-4 gap-1 rounded-md border bg-popover p-2 text-popover-foreground shadow-md">
                                         {chatEmojis.map((emoji) => (
                                             <button
                                                 key={emoji}

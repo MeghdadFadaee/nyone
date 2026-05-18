@@ -57,7 +57,7 @@ export default function ForgotPassword({ status }: { status?: string }) {
                     )}
                 </Form>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
+                <div className="space-x-1 text-center text-sm text-muted-foreground rtl:space-x-reverse">
                     <span>{t('Or, return to')}</span>
                     <TextLink href={login()}>{t('log in')}</TextLink>
                 </div>

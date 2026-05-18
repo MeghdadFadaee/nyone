@@ -35,17 +35,56 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $fallbackLocale = (string) config('app.fallback_locale');
+        $locale = app()->getLocale();
+        $locales = $this->locales();
+        $direction = $locales[$locale]['direction'] ?? 'ltr';
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'fallbackLocale' => (string) config('app.fallback_locale'),
-            'locale' => app()->getLocale(),
+            'fallbackLocale' => $fallbackLocale,
+            'locale' => $locale,
+            'localization' => [
+                'locale' => $locale,
+                'fallbackLocale' => $fallbackLocale,
+                'direction' => $direction,
+                'isRtl' => $direction === 'rtl',
+                'locales' => $this->localeOptions($locales),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'translations' => fn () => $this->translations(),
         ];
+    }
+
+    /**
+     * @return array<string, array{name: string, native_name: string, direction: string}>
+     */
+    private function locales(): array
+    {
+        $locales = config('localization.locales', []);
+
+        return is_array($locales) ? $locales : [];
+    }
+
+    /**
+     * @param  array<string, array{name: string, native_name: string, direction: string}>  $locales
+     * @return array<int, array{code: string, name: string, nativeName: string, direction: string}>
+     */
+    private function localeOptions(array $locales): array
+    {
+        return collect($locales)
+            ->map(fn (array $locale, string $code): array => [
+                'code' => $code,
+                'name' => $locale['name'],
+                'nativeName' => $locale['native_name'],
+                'direction' => $locale['direction'],
+            ])
+            ->values()
+            ->all();
     }
 
     /**

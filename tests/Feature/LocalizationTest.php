@@ -10,99 +10,113 @@ class LocalizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_inertia_responses_share_locale_and_translations(): void
+    public function test_inertia_responses_use_configured_default_locale_when_cookie_is_missing(): void
     {
-        $this->get(route('home'))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('welcome')
-                ->where('locale', app()->getLocale())
-                ->where('fallbackLocale', config('app.fallback_locale'))
-                ->where('translations.Live', __('Live'))
-                ->where('translations.Password', __('Password'))
-                ->where('translations.Closed', __('Closed'))
-                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === __('Browse active channels by category or title.'))
-            );
-    }
-
-    public function test_inertia_responses_share_spanish_translations(): void
-    {
-        app()->setLocale('es');
+        config(['app.locale' => 'fa']);
 
         $this->get(route('home'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('welcome')
-                ->where('locale', 'es')
-                ->where('fallbackLocale', config('app.fallback_locale'))
-                ->where('translations.Live', 'En vivo')
-                ->where('translations.Password', 'Contraseña')
-                ->where('translations.Closed', 'Cerrado')
-                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'Explora canales activos por categoría o título.')
-            );
-    }
-
-    public function test_inertia_responses_share_persian_translations(): void
-    {
-        app()->setLocale('fa');
-
-        $this->get(route('home'))
-            ->assertOk()
+            ->assertSee('dir="rtl"', false)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('welcome')
                 ->where('locale', 'fa')
                 ->where('fallbackLocale', config('app.fallback_locale'))
-                ->where('translations.Live', 'زنده')
-                ->where('translations.Password', 'رمز عبور')
-                ->where('translations.Closed', 'بسته')
-                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'کانال‌های فعال را بر اساس دسته‌بندی یا عنوان مرور کنید.')
+                ->where('localization.locale', 'fa')
+                ->where('localization.direction', 'rtl')
+                ->where('localization.isRtl', true)
+                ->has('localization.locales', 4)
+                ->where('translations.Live', __('Live', [], 'fa'))
+                ->where('translations.Password', __('Password', [], 'fa'))
+                ->where('translations.Language', __('Language', [], 'fa'))
+                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === __('Browse active channels by category or title.', [], 'fa'))
             );
     }
 
-    public function test_inertia_responses_share_arabic_translations(): void
+    public function test_inertia_responses_use_valid_language_cookie(): void
     {
-        app()->setLocale('ar');
+        config(['app.locale' => 'fa']);
 
-        $this->get(route('home'))
+        $this->withCookie('locale', 'es')
+            ->get(route('home'))
             ->assertOk()
+            ->assertSee('dir="ltr"', false)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('welcome')
+                ->where('locale', 'es')
+                ->where('localization.locale', 'es')
+                ->where('localization.direction', 'ltr')
+                ->where('localization.isRtl', false)
+                ->where('translations.Live', __('Live', [], 'es'))
+                ->where('translations.Password', __('Password', [], 'es'))
+                ->where('translations.Language', __('Language', [], 'es'))
+                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === __('Browse active channels by category or title.', [], 'es'))
+            );
+    }
+
+    public function test_rtl_language_cookie_shares_rtl_metadata(): void
+    {
+        config(['app.locale' => 'en']);
+
+        $this->withCookie('locale', 'ar')
+            ->get(route('home'))
+            ->assertOk()
+            ->assertSee('lang="ar"', false)
+            ->assertSee('dir="rtl"', false)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('welcome')
                 ->where('locale', 'ar')
-                ->where('fallbackLocale', config('app.fallback_locale'))
-                ->where('translations.Live', 'مباشر')
-                ->where('translations.Password', 'كلمة المرور')
-                ->where('translations.Closed', 'مغلق')
-                ->where('translations', fn ($translations) => $translations->get('Browse active channels by category or title.') === 'تصفح القنوات النشطة حسب الفئة أو العنوان.')
+                ->where('localization.locale', 'ar')
+                ->where('localization.direction', 'rtl')
+                ->where('localization.isRtl', true)
+                ->where('translations.Live', __('Live', [], 'ar'))
+                ->where('translations.Password', __('Password', [], 'ar'))
+                ->where('translations.Language', __('Language', [], 'ar'))
             );
     }
 
-    public function test_spanish_backend_translations_are_available(): void
+    public function test_invalid_language_cookie_falls_back_to_configured_locale_and_expires_cookie(): void
     {
-        app()->setLocale('es');
+        config(['app.locale' => 'fa']);
 
-        $this->assertSame('Estas credenciales no coinciden con nuestros registros.', __('auth.failed'));
-        $this->assertSame('Tu contraseña ha sido restablecida.', __('passwords.reset'));
-        $this->assertSame('&laquo; Anterior', __('pagination.previous'));
-        $this->assertSame('El campo email es obligatorio.', __('validation.required', ['attribute' => 'email']));
+        $this->withCookie('locale', 'invalid')
+            ->get(route('home'))
+            ->assertOk()
+            ->assertCookieExpired('locale')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('welcome')
+                ->where('locale', 'fa')
+                ->where('localization.locale', 'fa')
+                ->where('localization.direction', 'rtl')
+                ->where('localization.isRtl', true)
+            );
     }
 
-    public function test_persian_backend_translations_are_available(): void
+    public function test_user_can_change_language_preference(): void
     {
-        app()->setLocale('fa');
-
-        $this->assertSame('این اطلاعات با سوابق ما مطابقت ندارد.', __('auth.failed'));
-        $this->assertSame('رمز عبور شما بازنشانی شد.', __('passwords.reset'));
-        $this->assertSame('&laquo; قبلی', __('pagination.previous'));
-        $this->assertSame('فیلد email الزامی است.', __('validation.required', ['attribute' => 'email']));
+        $this->from(route('home'))
+            ->post(route('language.update'), ['locale' => 'es'])
+            ->assertRedirect(route('home'))
+            ->assertCookie('locale', 'es');
     }
 
-    public function test_arabic_backend_translations_are_available(): void
+    public function test_language_preference_must_be_supported(): void
     {
-        app()->setLocale('ar');
+        $this->from(route('home'))
+            ->post(route('language.update'), ['locale' => 'invalid'])
+            ->assertRedirect(route('home'))
+            ->assertSessionHasErrors('locale')
+            ->assertCookieMissing('locale');
+    }
 
-        $this->assertSame('بيانات الاعتماد هذه لا تطابق سجلاتنا.', __('auth.failed'));
-        $this->assertSame('تمت إعادة تعيين كلمة المرور.', __('passwords.reset'));
-        $this->assertSame('&laquo; السابق', __('pagination.previous'));
-        $this->assertSame('حقل email مطلوب.', __('validation.required', ['attribute' => 'email']));
+    public function test_backend_translation_files_are_available(): void
+    {
+        foreach (['en', 'es', 'fa', 'ar'] as $locale) {
+            app()->setLocale($locale);
+
+            $this->assertNotSame('auth.failed', __('auth.failed'));
+            $this->assertNotSame('passwords.reset', __('passwords.reset'));
+            $this->assertNotSame('pagination.previous', __('pagination.previous'));
+            $this->assertNotSame('validation.required', __('validation.required', ['attribute' => 'email']));
+        }
     }
 }
