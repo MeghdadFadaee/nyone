@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'https://nyone.net'), '/').'/storage',
+            'url' => rtrim(env('APP_URL', 'https://nyone.app'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

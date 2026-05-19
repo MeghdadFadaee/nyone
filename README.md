@@ -35,8 +35,8 @@ The project config is aligned to these production-style domains:
 
 ```env
 APP_NAME=Nyone
-APP_URL=https://nyone.net
-STREAMING_RTMP_INGEST_URL=rtmp://nyone.net:19935
+APP_URL=https://nyone.app
+STREAMING_RTMP_INGEST_URL=rtmp://nyone.app:19935
 STREAMING_HLS_PUBLIC_URL=https://nyone-hls.net
 MEDIAMTX_SHARED_SECRET=change-this-secret
 ```

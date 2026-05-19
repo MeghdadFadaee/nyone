@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'rtmp_ingest_url' => env('STREAMING_RTMP_INGEST_URL', 'rtmp://nyone.net:19935'),
+    'rtmp_ingest_url' => env('STREAMING_RTMP_INGEST_URL', 'rtmp://nyone.app:19935'),
     'hls_public_url' => env('STREAMING_HLS_PUBLIC_URL', 'https://nyone-hls.net'),
 
     /*

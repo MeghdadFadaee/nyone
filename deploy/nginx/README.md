@@ -2,9 +2,9 @@
 
 These configs match the current project domains:
 
-- App: `https://nyone.net`
+- App: `https://nyone.app`
 - HLS playback: `https://nyone-hls.net`
-- OBS ingest: `rtmp://nyone.net:19935`
+- OBS ingest: `rtmp://nyone.app:19935`
 
 MediaMTX stays private on local ports:
 
@@ -29,14 +29,14 @@ sudo systemctl reload nginx
 
 Make sure DNS points both hostnames to the server:
 
-- `nyone.net`
+- `nyone.app`
 - `nyone-hls.net`
 
 The Laravel `.env` should use:
 
 ```env
-APP_URL=https://nyone.net
-STREAMING_RTMP_INGEST_URL=rtmp://nyone.net:19935
+APP_URL=https://nyone.app
+STREAMING_RTMP_INGEST_URL=rtmp://nyone.app:19935
 STREAMING_HLS_PUBLIC_URL=https://nyone-hls.net
 MEDIAMTX_SHARED_SECRET=change-this-secret
 ```

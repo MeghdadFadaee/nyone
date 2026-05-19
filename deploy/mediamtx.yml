@@ -1,5 +1,5 @@
 authMethod: http
-authHTTPAddress: https://nyone.net/internal/mediamtx/auth?secret=change-this-secret
+authHTTPAddress: https://nyone.app/internal/mediamtx/auth?secret=change-this-secret
 authHTTPExclude:
   - action: read
   - action: playback
@@ -17,17 +17,17 @@ hls: yes
 hlsAddress: :19988
 hlsVariant: mpegts
 hlsAllowOrigins:
-  - https://nyone.net
+  - https://nyone.app
 
 
 pathDefaults:
   record: yes
   recordPath: ./storage/app/private/recordings/%path/%Y-%m-%d_%H-%M-%S-%f
 
-  runOnReady: curl -X POST "https://nyone.net/internal/mediamtx/ready?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
+  runOnReady: curl -X POST "https://nyone.app/internal/mediamtx/ready?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
   runOnReadyRestart: no
-  runOnNotReady: curl -X POST "https://nyone.net/internal/mediamtx/not-ready?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
-  runOnRecordSegmentComplete: curl -X POST "https://nyone.net/internal/mediamtx/recording-complete?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "segment_path=$MTX_SEGMENT_PATH" --data-urlencode "duration=$MTX_SEGMENT_DURATION"
+  runOnNotReady: curl -X POST "https://nyone.app/internal/mediamtx/not-ready?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
+  runOnRecordSegmentComplete: curl -X POST "https://nyone.app/internal/mediamtx/recording-complete?secret=change-this-secret" --data-urlencode "path=$MTX_PATH" --data-urlencode "segment_path=$MTX_SEGMENT_PATH" --data-urlencode "duration=$MTX_SEGMENT_DURATION"
 
 paths:
   all_others:

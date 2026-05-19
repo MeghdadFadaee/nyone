@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         PlatformSetting::current();
 
-        $admin = User::query()->firstOrNew(['email' => 'admin@nyone.net']);
+        $admin = User::query()->firstOrNew(['email' => 'admin@nyone.app']);
         $admin->forceFill([
             'name' => 'Admin User',
             'password' => 'password',
@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             'can_create_channel' => false,
         ])->save();
 
-        $official = User::query()->firstOrNew(['email' => 'chief@nyone.net']);
+        $official = User::query()->firstOrNew(['email' => 'chief@nyone.app']);
         $official->forceFill([
             'name' => 'Chief Nyone',
             'password' => 'password',

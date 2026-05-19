@@ -157,16 +157,16 @@ admin@example.com / password
 Current `.env` values relevant to streaming:
 
 ```env
-APP_URL=https://nyone.net
-STREAMING_RTMP_INGEST_URL=rtmp://nyone.net:19935
+APP_URL=https://nyone.app
+STREAMING_RTMP_INGEST_URL=rtmp://nyone.app:19935
 STREAMING_HLS_PUBLIC_URL=https://nyone-hls.net
 MEDIAMTX_SHARED_SECRET=change-this-secret
 ```
 
 MediaMTX current files:
 
-- `deploy/mediamtx.yml`: currently points auth/hooks to `https://nyone.net`.
-- `deploy/mediamtx.home.yml`: points auth/hooks to `https://nyone.net`.
+- `deploy/mediamtx.yml`: currently points auth/hooks to `https://nyone.app`.
+- `deploy/mediamtx.home.yml`: points auth/hooks to `https://nyone.app`.
 
 MediaMTX ports currently configured:
 
@@ -176,7 +176,7 @@ MediaMTX ports currently configured:
 OBS should use:
 
 ```text
-Server: rtmp://nyone.net:19935
+Server: rtmp://nyone.app:19935
 Stream Key: <channel-slug>?token=<generated-stream-key>
 ```
 
