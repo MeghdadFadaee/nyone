@@ -1,0 +1,35 @@
+authMethod: http
+authHTTPAddress: http://app/internal/mediamtx/auth?secret=${MEDIAMTX_SHARED_SECRET}
+authHTTPExclude:
+  - action: read
+  - action: playback
+  - action: api
+  - action: metrics
+  - action: pprof
+
+api: yes
+apiAddress: :9997
+
+rtmp: yes
+rtmpAddress: :${RTMP_INTERNAL_PORT}
+
+hls: yes
+hlsAddress: :${HLS_INTERNAL_PORT}
+hlsVariant: mpegts
+hlsAllowOrigins:
+  - ${APP_URL}
+  - ${HLS_PUBLIC_URL}
+
+pathDefaults:
+  record: yes
+  recordPath: /var/www/html/storage/app/private/recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+
+  runOnReady: curl -fsS -X POST "http://app/internal/mediamtx/ready?secret=${MEDIAMTX_SHARED_SECRET}" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
+  runOnReadyRestart: no
+  runOnNotReady: curl -fsS -X POST "http://app/internal/mediamtx/not-ready?secret=${MEDIAMTX_SHARED_SECRET}" --data-urlencode "path=$MTX_PATH" --data-urlencode "source_type=$MTX_SOURCE_TYPE" --data-urlencode "source_id=$MTX_SOURCE_ID"
+  runOnRecordSegmentComplete: curl -fsS -X POST "http://app/internal/mediamtx/recording-complete?secret=${MEDIAMTX_SHARED_SECRET}" --data-urlencode "path=$MTX_PATH" --data-urlencode "segment_path=$MTX_SEGMENT_PATH" --data-urlencode "duration=$MTX_SEGMENT_DURATION"
+
+paths:
+  all_others:
+    source: publisher
+
