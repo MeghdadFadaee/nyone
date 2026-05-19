@@ -12,8 +12,8 @@ fi
 
 : "${APP_URL:?APP_URL is required.}"
 : "${HLS_PUBLIC_URL:?HLS_PUBLIC_URL is required.}"
-: "${RTMP_INTERNAL_PORT:=19935}"
-: "${HLS_INTERNAL_PORT:=19988}"
+: "${RTMP_INTERNAL_PORT:=1935}"
+: "${HLS_INTERNAL_PORT:=8888}"
 
 mkdir -p /config /var/www/html/storage/app/private/recordings
 
@@ -32,4 +32,3 @@ if [ -x /mediamtx ]; then
 fi
 
 fail "MediaMTX binary was not found in the base image."
-
