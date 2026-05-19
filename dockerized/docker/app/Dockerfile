@@ -1,16 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm-slim AS assets
-
-WORKDIR /build
-
-COPY runtime/source/package.json runtime/source/package-lock.json ./
-RUN npm ci
-
-COPY runtime/source/ ./
-RUN npm run build
-
-FROM php:8.4-apache-bookworm AS app
+FROM php:8.4-apache-bookworm AS php-base
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public \
     COMPOSER_ALLOW_SUPERUSER=1
@@ -48,11 +38,37 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+FROM php-base AS composer-deps
+
 COPY runtime/source/composer.json runtime/source/composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
+FROM php-base AS assets
+
+COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:22-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+COPY runtime/source/composer.json runtime/source/composer.lock ./
+COPY --from=composer-deps /var/www/html/vendor ./vendor
+
+COPY runtime/source/package.json runtime/source/package-lock.json ./
+RUN npm ci
+
 COPY runtime/source/ ./
-COPY --from=assets /build/public/build ./public/build
+RUN composer dump-autoload --optimize --no-dev \
+    && php artisan package:discover --ansi \
+    && php artisan route:clear \
+    && npm run build
+
+FROM php-base AS app
+
+COPY runtime/source/composer.json runtime/source/composer.lock ./
+COPY --from=composer-deps /var/www/html/vendor ./vendor
+
+COPY runtime/source/ ./
+COPY --from=assets /var/www/html/public/build ./public/build
 
 COPY docker/app/apache/nyone.conf.template /etc/apache2/sites-available/nyone.conf.template
 COPY docker/app/php/production.ini /usr/local/etc/php/conf.d/production.ini
