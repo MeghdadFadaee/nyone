@@ -131,7 +131,6 @@ case "$role" in
         ;;
     viewer-sync)
         exec gosu www-data php artisan streaming:sync-viewer-counts \
-            --isolated \
             --interval="${STREAMING_VIEWER_SYNC_INTERVAL:-2}"
         ;;
     artisan)
