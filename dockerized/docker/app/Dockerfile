@@ -30,7 +30,6 @@ RUN apt-get update \
         pdo_pgsql \
         pdo_sqlite \
         pgsql \
-        sqlite3 \
         zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
@@ -78,7 +77,15 @@ COPY runtime/source/package.json runtime/source/package-lock.json ./
 RUN npm ci
 
 COPY runtime/source/ ./
-RUN composer dump-autoload --optimize --no-dev \
+RUN mkdir -p \
+        storage/app/private/recordings \
+        storage/app/public \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        bootstrap/cache \
+    && composer dump-autoload --optimize --no-dev \
     && php artisan package:discover --ansi \
     && php artisan route:clear \
     && php artisan wayfinder:generate --with-form --no-interaction \
