@@ -61,6 +61,16 @@ prepare_laravel_paths() {
     chown -R www-data:www-data storage bootstrap/cache
 }
 
+ensure_public_storage_link() {
+    mkdir -p public storage/app/public
+
+    if [[ -L public/storage || -e public/storage ]]; then
+        return 0
+    fi
+
+    ln -s ../storage/app/public public/storage
+}
+
 cache_laravel_bootstrap() {
     if [[ "${APP_OPTIMIZE_ON_BOOT:-true}" != "true" ]]; then
         return 0
@@ -93,7 +103,7 @@ if [[ "${WAIT_FOR_SERVICES:-true}" == "true" ]]; then
 fi
 
 prepare_laravel_paths
-artisan storage:link --force >/dev/null || true
+ensure_public_storage_link
 cache_laravel_bootstrap
 
 case "$role" in

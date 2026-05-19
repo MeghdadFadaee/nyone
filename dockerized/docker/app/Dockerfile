@@ -113,6 +113,7 @@ RUN composer dump-autoload --optimize --no-dev \
         storage/framework/views \
         storage/logs \
         bootstrap/cache \
+    && if [ ! -e public/storage ]; then ln -s ../storage/app/public public/storage; fi \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod +x /usr/local/bin/nyone-entrypoint
 

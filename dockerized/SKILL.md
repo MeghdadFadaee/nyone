@@ -41,6 +41,7 @@ Only publish HTTP and RTMP by default. Keep MediaMTX HLS behind Apache and keep 
 - When changing Laravel runtime behavior, update the shared `x-app-environment` block unless the value belongs to one role only.
 - When changing queue behavior, prefer env-driven options on the `queue` service and `docker/app/entrypoint.sh`.
 - Keep `npm run build` after PHP setup and Composer install in `docker/app/Dockerfile`; the Wayfinder Vite plugin invokes `php artisan wayfinder:generate` during the build. The asset stage must also provide safe build-time Laravel env values, create Laravel writable directories such as `storage/framework/views`, and run `php artisan wayfinder:generate --with-form --no-interaction` before `npm run build` so failures are visible in Docker logs.
+- Do not call `php artisan storage:link --force` as `www-data` during container startup; `public/storage` lives in the root-owned image filesystem. Create the symlink as root in the entrypoint if it is missing.
 - Keep deploy script behavior idempotent: repeat runs should update the Git checkout, rebuild, migrate, and restart services without deleting volumes.
 - Keep generated secrets in `.env`; do not bake secrets into images or templates.
 
