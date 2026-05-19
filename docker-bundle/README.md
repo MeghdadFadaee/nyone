@@ -1,6 +1,6 @@
-# Nyone Dockerized Deployment
+# Nyone Docker Bundle Deployment
 
-This folder is a self-contained deployment bundle. A server only needs the `dockerized/` directory; the application repository is cloned later into `runtime/source` by `scripts/deploy.sh`.
+This folder is a self-contained deployment bundle. A server only needs the `docker-bundle/` directory; the application repository is cloned later into `runtime/source` by `scripts/deploy.sh`.
 
 ## What It Runs
 
@@ -38,7 +38,7 @@ If a host-level reverse proxy already uses port `80`, set `APP_HTTP_PORT` to ano
 ## First Deployment
 
 ```bash
-cd dockerized
+cd docker-bundle
 cp .env.example .env
 nano .env
 chmod +x scripts/deploy.sh
@@ -71,7 +71,7 @@ The deploy script will:
 
 ## Runtime Configuration
 
-This bundle does not use the cloned repository's `.env` file for production settings. Docker Compose passes configuration from `dockerized/.env` into the containers.
+This bundle does not use the cloned repository's `.env` file for production settings. Docker Compose passes configuration from `docker-bundle/.env` into the containers.
 
 Important values:
 
@@ -87,7 +87,7 @@ The MediaMTX config is Docker-owned at `docker/mediamtx/mediamtx.yml.template`; 
 
 ## Operations
 
-Run commands from the `dockerized/` directory.
+Run commands from the `docker-bundle/` directory.
 
 ```bash
 docker compose --env-file .env -f docker-compose.yml ps
@@ -123,7 +123,7 @@ Restore on a fresh server after installing Docker and Compose:
 unzip nyone-backup-YYYYMMDD-HHMMSS.zip
 cd nyone-backup-YYYYMMDD-HHMMSS
 chmod +x restore.sh
-./restore.sh /opt/nyone/dockerized
+./restore.sh /opt/nyone/docker-bundle
 ```
 
 Stop the stack:
@@ -155,7 +155,7 @@ RTMP_PUBLIC_PORT=1935
 Run `./scripts/deploy.sh` after changing `.env`, then point Nginx at `http://127.0.0.1:8080`. Replace the example domains and certificate paths before enabling the config.
 
 ```nginx
-# /etc/nginx/sites-available/nyone-dockerized.conf
+# /etc/nginx/sites-available/nyone-docker-bundle.conf
 
 server {
     listen 80;
@@ -223,7 +223,7 @@ server {
 Enable and validate on the server:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/nyone-dockerized.conf /etc/nginx/sites-enabled/nyone-dockerized.conf
+sudo ln -s /etc/nginx/sites-available/nyone-docker-bundle.conf /etc/nginx/sites-enabled/nyone-docker-bundle.conf
 sudo nginx -t
 sudo systemctl reload nginx
 ```

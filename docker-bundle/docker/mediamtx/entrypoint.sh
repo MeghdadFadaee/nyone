@@ -7,7 +7,7 @@ fail() {
 }
 
 if [ -z "${MEDIAMTX_SHARED_SECRET:-}" ] || [ "${MEDIAMTX_SHARED_SECRET#change-me}" != "$MEDIAMTX_SHARED_SECRET" ]; then
-    fail "MEDIAMTX_SHARED_SECRET is required. Run dockerized/scripts/deploy.sh or set it in dockerized/.env."
+    fail "MEDIAMTX_SHARED_SECRET is required. Run docker-bundle/scripts/deploy.sh or set it in docker-bundle/.env."
 fi
 
 : "${APP_URL:?APP_URL is required.}"

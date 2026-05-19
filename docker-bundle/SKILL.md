@@ -1,14 +1,14 @@
 ---
-name: dockerized-deployment
-description: Work on the Nyone Dockerized deployment bundle under dockerized/. Use when modifying Docker Compose, Apache, MediaMTX, PostgreSQL, Redis, Laravel queue/scheduler/viewer-sync services, deploy.sh, deployment README files, or runtime environment defaults for this self-contained Docker deployment.
+name: docker-bundle-deployment
+description: Work on the Nyone docker-bundle deployment bundle under docker-bundle/. Use when modifying Docker Compose, Apache, MediaMTX, PostgreSQL, Redis, Laravel queue/scheduler/viewer-sync services, deploy.sh, deployment README files, or runtime environment defaults for this self-contained Docker deployment.
 ---
 
-# Nyone Dockerized Deployment
+# Nyone docker-bundle Deployment
 
 ## Core Rules
 
-- Keep deployment changes inside `dockerized/` unless the user explicitly requests application code changes.
-- Treat `dockerized/.env` and `dockerized/runtime/` as server-local generated state; do not commit or depend on them.
+- Keep deployment changes inside `docker-bundle/` unless the user explicitly requests application code changes.
+- Treat `docker-bundle/.env` and `docker-bundle/runtime/` as server-local generated state; do not commit or depend on them.
 - Do not make this bundle depend on the cloned app repository's `.env` or `deploy/mediamtx.yml`.
 - Keep MediaMTX config Docker-owned at `docker/mediamtx/mediamtx.yml.template`.
 - Keep `APP_DOMAIN` and `HLS_DOMAIN` separate because Apache uses separate virtual hosts.
@@ -17,7 +17,7 @@ description: Work on the Nyone Dockerized deployment bundle under dockerized/. U
 ## Architecture
 
 - `scripts/deploy.sh` is the entrypoint for server deployment.
-- `scripts/backup.sh` creates restore-ready zip backups for the Dockerized deployment.
+- `scripts/backup.sh` creates restore-ready zip backups for the docker-bundle deployment.
 - `docker-compose.yml` defines `app`, `db`, `redis`, `mediamtx`, `queue`, `scheduler`, `viewer-sync`, and one-shot `migrate`.
 - `docker/app/Dockerfile` builds the Laravel Apache image from `runtime/source`.
 - `docker/app/entrypoint.sh` selects behavior by `CONTAINER_ROLE`.
@@ -63,14 +63,14 @@ Use static checks when not on a deployment server:
 
 ```bash
 git diff --check
-rg "1993[5]|1998[8]|80[8]0|25[2]5|nyone[.]net|nyone-hls[.]net|change-this-secre[t]" dockerized -n
-bash -n dockerized/scripts/backup.sh
+rg "1993[5]|1998[8]|80[8]0|25[2]5|nyone[.]net|nyone-hls[.]net|change-this-secre[t]" docker-bundle -n
+bash -n docker-bundle/scripts/backup.sh
 ```
 
 If Docker is available and the user allows non-deploy validation, validate only the Compose config:
 
 ```bash
-docker compose --env-file dockerized/.env.example -f dockerized/docker-compose.yml config
+docker compose --env-file docker-bundle/.env.example -f docker-bundle/docker-compose.yml config
 ```
 
 Do not start containers during local verification unless the user explicitly asks for runtime testing.

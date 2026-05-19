@@ -15,7 +15,7 @@ require_env() {
     local value="${!key:-}"
 
     if [[ -z "$value" || "$value" == "change-me"* || "$value" == "base64:change-me"* ]]; then
-        fail "$key is required. Run dockerized/scripts/deploy.sh or set it in dockerized/.env."
+        fail "$key is required. Run docker-bundle/scripts/deploy.sh or set it in docker-bundle/.env."
     fi
 }
 

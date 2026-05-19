@@ -1,6 +1,6 @@
 # Fresh Ubuntu VPS Deployment for nyone.app
 
-This guide explains how to deploy Nyone from only the `dockerized/` folder on a fresh Ubuntu VPS.
+This guide explains how to deploy Nyone from only the `docker-bundle/` folder on a fresh Ubuntu VPS.
 
 It assumes:
 
@@ -10,7 +10,7 @@ It assumes:
 - Docker Apache is private on `127.0.0.1:8080`
 - Host Nginx handles public HTTP, HTTPS, and SSL certificates
 
-The application repository itself does not need to exist on the server before deployment. The deploy script clones it into `dockerized/runtime/source`.
+The application repository itself does not need to exist on the server before deployment. The deploy script clones it into `docker-bundle/runtime/source`.
 
 ## 1. Point DNS to the VPS
 
@@ -92,7 +92,7 @@ systemctl enable --now docker
 docker run hello-world
 ```
 
-## 5. Copy only the dockerized folder to the server
+## 5. Copy only the docker-bundle folder to the server
 
 Create the deployment directory on the VPS:
 
@@ -103,24 +103,24 @@ mkdir -p /opt/nyone
 From your local machine, copy the folder:
 
 ```bash
-rsync -av --exclude '.env' --exclude 'runtime' dockerized/ root@<VPS_PUBLIC_IPV4>:/opt/nyone/dockerized/
+rsync -av --exclude '.env' --exclude 'runtime' docker-bundle/ root@<VPS_PUBLIC_IPV4>:/opt/nyone/docker-bundle/
 ```
 
 Back on the VPS:
 
 ```bash
-cd /opt/nyone/dockerized
+cd /opt/nyone/docker-bundle
 cp .env.example .env
 chmod +x scripts/deploy.sh
 chmod +x scripts/backup.sh
 ```
 
-## 6. Configure dockerized/.env
+## 6. Configure docker-bundle/.env
 
 Edit the Docker deployment environment:
 
 ```bash
-nano /opt/nyone/dockerized/.env
+nano /opt/nyone/docker-bundle/.env
 ```
 
 Use these values for `nyone.app`:
@@ -193,7 +193,7 @@ ssh -T git@github.com
 ## 7. Run the Docker deployment
 
 ```bash
-cd /opt/nyone/dockerized
+cd /opt/nyone/docker-bundle
 ./scripts/deploy.sh
 ```
 
@@ -369,7 +369,7 @@ curl -I https://nyone.app/up
 Check container status:
 
 ```bash
-cd /opt/nyone/dockerized
+cd /opt/nyone/docker-bundle
 docker compose --env-file .env -f docker-compose.yml ps
 ```
 
@@ -413,7 +413,7 @@ https://hls.nyone.app/<channel-slug>/index.m3u8
 When the Git branch changes:
 
 ```bash
-cd /opt/nyone/dockerized
+cd /opt/nyone/docker-bundle
 ./scripts/deploy.sh
 ```
 
@@ -429,10 +429,10 @@ docker compose --env-file .env -f docker-compose.yml logs -f mediamtx
 
 ## 15. Create a restore-ready backup
 
-Run backups from the Dockerized deployment directory:
+Run backups from the docker-bundle deployment directory:
 
 ```bash
-cd /opt/nyone/dockerized
+cd /opt/nyone/docker-bundle
 ./scripts/backup.sh
 ```
 
@@ -445,10 +445,10 @@ For the safest storage and recording snapshot, use a maintenance window and stop
 The final archive is written to:
 
 ```text
-/opt/nyone/dockerized/backups/nyone-backup-YYYYMMDD-HHMMSS.zip
+/opt/nyone/docker-bundle/backups/nyone-backup-YYYYMMDD-HHMMSS.zip
 ```
 
-Copy that one zip file off the VPS. It contains the Dockerized deployment files, `.env`, source checkout, PostgreSQL dump, app storage, Redis data, checksums, restore notes, and a restore helper.
+Copy that one zip file off the VPS. It contains the docker-bundle deployment files, `.env`, source checkout, PostgreSQL dump, app storage, Redis data, checksums, restore notes, and a restore helper.
 
 Restore on a fresh Ubuntu VPS after installing Docker and copying the zip:
 
@@ -456,16 +456,16 @@ Restore on a fresh Ubuntu VPS after installing Docker and copying the zip:
 unzip nyone-backup-YYYYMMDD-HHMMSS.zip
 cd nyone-backup-YYYYMMDD-HHMMSS
 chmod +x restore.sh
-./restore.sh /opt/nyone/dockerized
+./restore.sh /opt/nyone/docker-bundle
 ```
 
-If `/opt/nyone/dockerized` already exists and you intentionally want to replace it:
+If `/opt/nyone/docker-bundle` already exists and you intentionally want to replace it:
 
 ```bash
-./restore.sh --replace /opt/nyone/dockerized
+./restore.sh --replace /opt/nyone/docker-bundle
 ```
 
-Host-level Nginx files and Let's Encrypt certificates live outside `dockerized/`, so recreate or back them up separately.
+Host-level Nginx files and Let's Encrypt certificates live outside `docker-bundle/`, so recreate or back them up separately.
 
 ## References
 

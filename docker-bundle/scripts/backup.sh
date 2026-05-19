@@ -31,14 +31,14 @@ Usage:
   scripts/backup.sh [options]
 
 Options:
-  --output-dir PATH   Directory for the final zip file. Default: dockerized/backups
+  --output-dir PATH   Directory for the final zip file. Default: docker-bundle/backups
   --name NAME         Backup folder/zip base name. Default: nyone-backup-UTC_TIMESTAMP
   --stop-writers      Stop app, MediaMTX, queue, scheduler, and viewer-sync while files are archived
   --force             Replace an existing zip with the same name
   -h, --help          Show this help
 
 The script creates one restore-ready zip containing:
-  - dockerized deployment files and .env
+  - docker-bundle deployment files and .env
   - runtime/source checkout when present, excluding dependencies and Laravel runtime cache/log files
   - PostgreSQL SQL dump
   - app storage volume archive
@@ -174,11 +174,11 @@ run_compose run --rm --no-deps -T --user root --entrypoint tar \
     -v "$ARCHIVE_DIR/volumes:/backup" \
     redis -czf /backup/redis-data.tar.gz -C /data .
 
-info "Archiving dockerized deployment files."
-tar -czf "$ARCHIVE_DIR/deployment/dockerized-files.tar.gz" \
+info "Archiving docker-bundle deployment files."
+tar -czf "$ARCHIVE_DIR/deployment/docker-bundle-files.tar.gz" \
     -C "$(dirname "$ROOT_DIR")" \
-    --exclude='dockerized/backups' \
-    --exclude='dockerized/runtime' \
+    --exclude='docker-bundle/backups' \
+    --exclude='docker-bundle/runtime' \
     "$(basename "$ROOT_DIR")"
 
 if [ -d "$SOURCE_DIR" ]; then
@@ -225,9 +225,9 @@ if [ -d "$SOURCE_DIR/.git" ]; then
 fi
 
 cat > "$ARCHIVE_DIR/README_RESTORE.md" <<'RESTORE_README'
-# Nyone Dockerized Backup Restore
+# Nyone docker-bundle Backup Restore
 
-This archive contains everything managed by the `dockerized/` deployment bundle:
+This archive contains everything managed by the `docker-bundle/` deployment bundle:
 
 - deployment files and `.env`
 - `runtime/source` checkout when it existed at backup time
@@ -235,7 +235,7 @@ This archive contains everything managed by the `dockerized/` deployment bundle:
 - Laravel app storage volume
 - Redis data volume
 
-Host-level files outside `dockerized/`, such as Nginx site files and Let's Encrypt certificates, are not included.
+Host-level files outside `docker-bundle/`, such as Nginx site files and Let's Encrypt certificates, are not included.
 
 ## Restore on a fresh server
 
@@ -243,13 +243,13 @@ Install Docker and the Compose plugin first. Then extract this zip and run:
 
 ```bash
 chmod +x restore.sh
-./restore.sh /opt/nyone/dockerized
+./restore.sh /opt/nyone/docker-bundle
 ```
 
 If the target already exists and you intentionally want to replace it:
 
 ```bash
-./restore.sh --replace /opt/nyone/dockerized
+./restore.sh --replace /opt/nyone/docker-bundle
 ```
 
 The restore helper copies the deployment bundle, restores `runtime/source` when present, clones it from `.env` when missing, rebuilds the images, restores PostgreSQL, restores the app storage and Redis volumes, and starts the app services.
@@ -262,7 +262,7 @@ cat > "$ARCHIVE_DIR/restore.sh" <<'RESTORE_SCRIPT'
 set -euo pipefail
 
 BACKUP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="/opt/nyone/dockerized"
+TARGET_DIR="/opt/nyone/docker-bundle"
 REPLACE=false
 TMP_DIR=""
 
@@ -281,8 +281,8 @@ Usage:
   ./restore.sh [--replace] [target-dir]
 
 Example:
-  ./restore.sh /opt/nyone/dockerized
-  ./restore.sh --replace /opt/nyone/dockerized
+  ./restore.sh /opt/nyone/docker-bundle
+  ./restore.sh --replace /opt/nyone/docker-bundle
 USAGE
 }
 
@@ -356,7 +356,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 [ "$TARGET_DIR" != "/" ] || fail "Refusing to restore into /."
-[ -f "$BACKUP_DIR/deployment/dockerized-files.tar.gz" ] || fail "deployment/dockerized-files.tar.gz is missing."
+[ -f "$BACKUP_DIR/deployment/docker-bundle-files.tar.gz" ] || fail "deployment/docker-bundle-files.tar.gz is missing."
 [ -f "$BACKUP_DIR/database/postgres.sql.gz" ] || fail "database/postgres.sql.gz is missing."
 [ -f "$BACKUP_DIR/volumes/app-storage.tar.gz" ] || fail "volumes/app-storage.tar.gz is missing."
 
@@ -381,10 +381,10 @@ if [ -e "$TARGET_DIR" ]; then
 fi
 
 TMP_DIR="$(mktemp -d)"
-info "Restoring dockerized files."
-tar -xzf "$BACKUP_DIR/deployment/dockerized-files.tar.gz" -C "$TMP_DIR"
-[ -d "$TMP_DIR/dockerized" ] || fail "Backup did not contain a dockerized directory."
-mv "$TMP_DIR/dockerized" "$TARGET_DIR"
+info "Restoring docker-bundle files."
+tar -xzf "$BACKUP_DIR/deployment/docker-bundle-files.tar.gz" -C "$TMP_DIR"
+[ -d "$TMP_DIR/docker-bundle" ] || fail "Backup did not contain a docker-bundle directory."
+mv "$TMP_DIR/docker-bundle" "$TARGET_DIR"
 
 if [ -f "$BACKUP_DIR/deployment/runtime-source.tar.gz" ]; then
     info "Restoring runtime/source."
