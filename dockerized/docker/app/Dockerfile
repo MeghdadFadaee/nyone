@@ -16,6 +16,7 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libonig-dev \
         libpq-dev \
+        libsqlite3-dev \
         libzip-dev \
         netcat-openbsd \
         unzip \
@@ -27,7 +28,9 @@ RUN apt-get update \
         opcache \
         pcntl \
         pdo_pgsql \
+        pdo_sqlite \
         pgsql \
+        sqlite3 \
         zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
@@ -45,6 +48,24 @@ RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoload
 
 FROM php-base AS assets
 
+ENV APP_NAME=Nyone \
+    APP_ENV=production \
+    APP_DEBUG=false \
+    APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA \
+    APP_URL=http://localhost \
+    LOG_CHANNEL=stderr \
+    DB_CONNECTION=sqlite \
+    DB_DATABASE=:memory: \
+    CACHE_STORE=array \
+    SESSION_DRIVER=array \
+    QUEUE_CONNECTION=sync \
+    MAIL_MAILER=log \
+    BROADCAST_CONNECTION=log \
+    FILESYSTEM_DISK=local \
+    VITE_APP_NAME=Nyone \
+    STREAMING_VIEWER_COUNT_CACHE_STORE=array \
+    MEDIAMTX_SHARED_SECRET=build-time-secret
+
 COPY --from=node:22-bookworm-slim /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:22-bookworm-slim /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
@@ -60,6 +81,7 @@ COPY runtime/source/ ./
 RUN composer dump-autoload --optimize --no-dev \
     && php artisan package:discover --ansi \
     && php artisan route:clear \
+    && php artisan wayfinder:generate --with-form --no-interaction \
     && npm run build
 
 FROM php-base AS app
