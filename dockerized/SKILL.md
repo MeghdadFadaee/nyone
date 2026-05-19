@@ -17,6 +17,7 @@ description: Work on the Nyone Dockerized deployment bundle under dockerized/. U
 ## Architecture
 
 - `scripts/deploy.sh` is the entrypoint for server deployment.
+- `scripts/backup.sh` creates restore-ready zip backups for the Dockerized deployment.
 - `docker-compose.yml` defines `app`, `db`, `redis`, `mediamtx`, `queue`, `scheduler`, `viewer-sync`, and one-shot `migrate`.
 - `docker/app/Dockerfile` builds the Laravel Apache image from `runtime/source`.
 - `docker/app/entrypoint.sh` selects behavior by `CONTAINER_ROLE`.
@@ -44,6 +45,7 @@ Only publish HTTP and RTMP by default. Keep MediaMTX HLS behind Apache and keep 
 - Keep `npm run build` after PHP setup and Composer install in `docker/app/Dockerfile`; the Wayfinder Vite plugin invokes `php artisan wayfinder:generate` during the build. The asset stage must also provide safe build-time Laravel env values, create Laravel writable directories such as `storage/framework/views`, and run `php artisan wayfinder:generate --with-form --no-interaction` before `npm run build` so failures are visible in Docker logs.
 - Do not call `php artisan storage:link --force` as `www-data` during container startup; `public/storage` lives in the root-owned image filesystem. Create the symlink as root in the entrypoint if it is missing.
 - Keep deploy script behavior idempotent: repeat runs should update the Git checkout, rebuild, migrate, and restart services without deleting volumes.
+- Keep backup behavior restore-ready: include deployment files, `.env`, source checkout when present, PostgreSQL dump, app storage volume, Redis volume, checksums, restore notes, and a restore helper in one zip.
 - Keep generated secrets in `.env`; do not bake secrets into images or templates.
 
 ## Nginx TLS Proxy Guidance
@@ -62,6 +64,7 @@ Use static checks when not on a deployment server:
 ```bash
 git diff --check
 rg "1993[5]|1998[8]|80[8]0|25[2]5|nyone[.]net|nyone-hls[.]net|change-this-secre[t]" dockerized -n
+bash -n dockerized/scripts/backup.sh
 ```
 
 If Docker is available and the user allows non-deploy validation, validate only the Compose config:

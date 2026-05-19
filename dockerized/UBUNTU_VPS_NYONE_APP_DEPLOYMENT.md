@@ -41,7 +41,7 @@ Update the server:
 ```bash
 apt-get update
 apt-get upgrade -y
-apt-get install -y ca-certificates curl git gnupg lsb-release nginx openssl snapd ufw
+apt-get install -y ca-certificates curl git gnupg lsb-release nginx openssl snapd ufw unzip zip
 ```
 
 ## 3. Configure the firewall
@@ -112,6 +112,7 @@ Back on the VPS:
 cd /opt/nyone/dockerized
 cp .env.example .env
 chmod +x scripts/deploy.sh
+chmod +x scripts/backup.sh
 ```
 
 ## 6. Configure dockerized/.env
@@ -425,6 +426,46 @@ docker compose --env-file .env -f docker-compose.yml logs -f scheduler
 docker compose --env-file .env -f docker-compose.yml logs -f viewer-sync
 docker compose --env-file .env -f docker-compose.yml logs -f mediamtx
 ```
+
+## 15. Create a restore-ready backup
+
+Run backups from the Dockerized deployment directory:
+
+```bash
+cd /opt/nyone/dockerized
+./scripts/backup.sh
+```
+
+For the safest storage and recording snapshot, use a maintenance window and stop writer services while the backup runs:
+
+```bash
+./scripts/backup.sh --stop-writers
+```
+
+The final archive is written to:
+
+```text
+/opt/nyone/dockerized/backups/nyone-backup-YYYYMMDD-HHMMSS.zip
+```
+
+Copy that one zip file off the VPS. It contains the Dockerized deployment files, `.env`, source checkout, PostgreSQL dump, app storage, Redis data, checksums, restore notes, and a restore helper.
+
+Restore on a fresh Ubuntu VPS after installing Docker and copying the zip:
+
+```bash
+unzip nyone-backup-YYYYMMDD-HHMMSS.zip
+cd nyone-backup-YYYYMMDD-HHMMSS
+chmod +x restore.sh
+./restore.sh /opt/nyone/dockerized
+```
+
+If `/opt/nyone/dockerized` already exists and you intentionally want to replace it:
+
+```bash
+./restore.sh --replace /opt/nyone/dockerized
+```
+
+Host-level Nginx files and Let's Encrypt certificates live outside `dockerized/`, so recreate or back them up separately.
 
 ## References
 

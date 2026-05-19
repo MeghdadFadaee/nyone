@@ -28,6 +28,7 @@ Only HTTP and RTMP are published by default. HLS is served through Apache on `HL
 - Docker with Compose v2.
 - Git.
 - OpenSSL.
+- Zip.
 - Network access from the server to the Git repository.
 - DNS for both `APP_DOMAIN` and `HLS_DOMAIN`.
 - External TLS termination through a reverse proxy, load balancer, or CDN.
@@ -41,6 +42,7 @@ cd dockerized
 cp .env.example .env
 nano .env
 chmod +x scripts/deploy.sh
+chmod +x scripts/backup.sh
 ./scripts/deploy.sh
 ```
 
@@ -99,6 +101,29 @@ Redeploy after new Git changes:
 
 ```bash
 ./scripts/deploy.sh
+```
+
+Create a restore-ready backup zip:
+
+```bash
+./scripts/backup.sh
+```
+
+For the most consistent app storage and recording backup, run it during a maintenance window and let the script stop writer services while it archives files:
+
+```bash
+./scripts/backup.sh --stop-writers
+```
+
+Backups are written to `backups/` by default. Each zip contains deployment files, `.env`, `runtime/source`, PostgreSQL dump, app storage, Redis data, checksums, restore notes, and a `restore.sh` helper.
+
+Restore on a fresh server after installing Docker and Compose:
+
+```bash
+unzip nyone-backup-YYYYMMDD-HHMMSS.zip
+cd nyone-backup-YYYYMMDD-HHMMSS
+chmod +x restore.sh
+./restore.sh /opt/nyone/dockerized
 ```
 
 Stop the stack:
