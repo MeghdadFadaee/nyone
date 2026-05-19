@@ -14,14 +14,14 @@ This folder is a self-contained deployment bundle. A server only needs the `dock
 
 Default ports use the services' normal defaults:
 
-- HTTP app/HLS proxy: `80`
+- HTTP app proxy: `80`
 - RTMP ingest: `1935`
-- MediaMTX HLS inside Docker: `8888`
+- MediaMTX HLS on localhost: `8888`
 - MediaMTX API inside Docker: `9997`
 - PostgreSQL inside Docker: `5432`
 - Redis inside Docker: `6379`
 
-Only HTTP and RTMP are published by default. HLS is served through Apache on `HLS_DOMAIN`, not directly from MediaMTX.
+HTTP and RTMP are published by default. HLS is published only on `127.0.0.1:8888` by default so host Nginx can proxy `HLS_DOMAIN` directly to MediaMTX without exposing the HLS port publicly.
 
 ## Server Requirements
 
@@ -33,7 +33,7 @@ Only HTTP and RTMP are published by default. HLS is served through Apache on `HL
 - DNS for both `APP_DOMAIN` and `HLS_DOMAIN`.
 - External TLS termination through a reverse proxy, load balancer, or CDN.
 
-If a host-level reverse proxy already uses port `80`, set `APP_HTTP_PORT` to another local port and forward both hostnames to that port.
+If a host-level reverse proxy already uses port `80`, set `APP_HTTP_PORT` to another local port for the app and keep `HLS_HTTP_PORT` on a local MediaMTX port for HLS.
 
 ## First Deployment
 
@@ -78,6 +78,7 @@ Important values:
 - `APP_DOMAIN`: Laravel app hostname.
 - `HLS_DOMAIN`: HLS playback hostname. Must differ from `APP_DOMAIN`.
 - `APP_HTTP_PORT`: host port published by Apache, default `80`.
+- `HLS_HTTP_PORT`: host address published by MediaMTX HLS, default `127.0.0.1:8888`.
 - `RTMP_PUBLIC_PORT`: host RTMP port, default `1935`.
 - `PUBLIC_SCHEME`: usually `https` behind external TLS.
 - `SEED_DATABASE`: defaults to `false`; set to `true` only if you intentionally want the app seeder to run.
@@ -136,7 +137,7 @@ Do not remove volumes unless you intend to delete database, Redis, and stored ap
 
 ## External Proxy Notes
 
-Forward both `APP_DOMAIN` and `HLS_DOMAIN` to the Apache container's published HTTP port. Preserve the `Host` header and set `X-Forwarded-Proto: https` when TLS is terminated outside Docker.
+Forward `APP_DOMAIN` to the Apache container's published HTTP port. Forward `HLS_DOMAIN` directly to the MediaMTX HLS localhost port. Preserve the `Host` header for the Laravel app and set `X-Forwarded-Proto: https` when TLS is terminated outside Docker.
 
 Expose TCP `1935` publicly for OBS/RTMP ingest. Do not expose MediaMTX API port `9997` publicly.
 
@@ -146,13 +147,14 @@ Use this pattern when Nginx runs on the host and handles public HTTP/HTTPS. In t
 
 ```env
 APP_HTTP_PORT=127.0.0.1:8080
+HLS_HTTP_PORT=127.0.0.1:8888
 PUBLIC_SCHEME=https
 APP_DOMAIN=app.example.com
 HLS_DOMAIN=hls.example.com
 RTMP_PUBLIC_PORT=1935
 ```
 
-Run `./scripts/deploy.sh` after changing `.env`, then point Nginx at `http://127.0.0.1:8080`. Replace the example domains and certificate paths before enabling the config.
+Run `./scripts/deploy.sh` after changing `.env`, then point Nginx app traffic at `http://127.0.0.1:8080` and HLS traffic at `http://127.0.0.1:8888`. Replace the example domains and certificate paths before enabling the config.
 
 ```nginx
 # /etc/nginx/sites-available/nyone-docker-bundle.conf
@@ -203,7 +205,11 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/hls.example.com/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        if ($request_method = OPTIONS) {
+            return 204;
+        }
+
+        proxy_pass http://127.0.0.1:8888;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -215,6 +221,10 @@ server {
         proxy_request_buffering off;
         proxy_read_timeout 60s;
         proxy_send_timeout 60s;
+        add_header Access-Control-Allow-Origin "https://app.example.com" always;
+        add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range, Origin, Accept, Content-Type" always;
+        add_header Access-Control-Expose-Headers "Content-Length, Content-Range" always;
         add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate" always;
     }
 }
@@ -229,3 +239,15 @@ sudo systemctl reload nginx
 ```
 
 Keep RTMP separate from this HTTP proxy. Open TCP `1935` to the Docker host so OBS can publish directly to MediaMTX.
+
+## HLS CORS Check
+
+Host Nginx owns the public HLS CORS headers. MediaMTX is configured with `hlsAllowOrigins: []` so the response does not include duplicate `Access-Control-Allow-Origin` headers after proxying.
+
+Check the deployed headers with the exact app origin:
+
+```bash
+curl -I -H "Origin: https://app.example.com" "https://hls.example.com/channel/index.m3u8"
+```
+
+The response should contain one `Access-Control-Allow-Origin` header matching the app origin. If two `Access-Control-Allow-Origin` headers appear, rebuild the MediaMTX container from this bundle and reload Nginx.

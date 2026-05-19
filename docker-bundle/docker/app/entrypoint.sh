@@ -41,9 +41,9 @@ artisan() {
 }
 
 render_apache_config() {
-    export APP_DOMAIN HLS_DOMAIN HLS_INTERNAL_PORT APP_URL
+    export APP_DOMAIN
 
-    envsubst '${APP_DOMAIN} ${HLS_DOMAIN} ${HLS_INTERNAL_PORT} ${APP_URL}' \
+    envsubst '${APP_DOMAIN}' \
         < /etc/apache2/sites-available/nyone.conf.template \
         > /etc/apache2/sites-available/000-default.conf
 }

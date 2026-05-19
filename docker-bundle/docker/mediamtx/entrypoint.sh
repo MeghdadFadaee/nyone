@@ -10,16 +10,14 @@ if [ -z "${MEDIAMTX_SHARED_SECRET:-}" ] || [ "${MEDIAMTX_SHARED_SECRET#change-me
     fail "MEDIAMTX_SHARED_SECRET is required. Run docker-bundle/scripts/deploy.sh or set it in docker-bundle/.env."
 fi
 
-: "${APP_URL:?APP_URL is required.}"
-: "${HLS_PUBLIC_URL:?HLS_PUBLIC_URL is required.}"
 : "${RTMP_INTERNAL_PORT:=1935}"
 : "${HLS_INTERNAL_PORT:=8888}"
 
 mkdir -p /config /var/www/html/storage/app/private/recordings
 
-export APP_URL HLS_PUBLIC_URL MEDIAMTX_SHARED_SECRET RTMP_INTERNAL_PORT HLS_INTERNAL_PORT
+export MEDIAMTX_SHARED_SECRET RTMP_INTERNAL_PORT HLS_INTERNAL_PORT
 
-envsubst '${APP_URL} ${HLS_PUBLIC_URL} ${MEDIAMTX_SHARED_SECRET} ${RTMP_INTERNAL_PORT} ${HLS_INTERNAL_PORT}' \
+envsubst '${MEDIAMTX_SHARED_SECRET} ${RTMP_INTERNAL_PORT} ${HLS_INTERNAL_PORT}' \
     < /etc/mediamtx/mediamtx.yml.template \
     > /config/mediamtx.yml
 

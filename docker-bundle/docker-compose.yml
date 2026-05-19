@@ -59,7 +59,6 @@ x-app-environment: &app-environment
   MEDIAMTX_SHARED_SECRET: ${MEDIAMTX_SHARED_SECRET:-}
   APP_DOMAIN: ${APP_DOMAIN:-nyone.example.com}
   HLS_DOMAIN: ${HLS_DOMAIN:-nyone-hls.example.com}
-  HLS_INTERNAL_PORT: 8888
   APP_OPTIMIZE_ON_BOOT: ${APP_OPTIMIZE_ON_BOOT:-true}
   SEED_DATABASE: ${SEED_DATABASE:-false}
 
@@ -142,13 +141,12 @@ services:
       dockerfile: docker/mediamtx/Dockerfile
     restart: unless-stopped
     environment:
-      APP_URL: ${PUBLIC_SCHEME:-https}://${APP_DOMAIN:-nyone.example.com}
-      HLS_PUBLIC_URL: ${PUBLIC_SCHEME:-https}://${HLS_DOMAIN:-nyone-hls.example.com}
       MEDIAMTX_SHARED_SECRET: ${MEDIAMTX_SHARED_SECRET:-}
       RTMP_INTERNAL_PORT: 1935
       HLS_INTERNAL_PORT: 8888
     ports:
       - "${RTMP_PUBLIC_PORT:-1935}:1935"
+      - "${HLS_HTTP_PORT:-127.0.0.1:8888}:8888"
     volumes:
       - app-storage:/var/www/html/storage
     depends_on:

@@ -22,22 +22,3 @@ ServerName ${APP_DOMAIN}
     ErrorLog /proc/self/fd/2
     CustomLog /proc/self/fd/1 combined
 </VirtualHost>
-
-<VirtualHost *:80>
-    ServerName ${HLS_DOMAIN}
-
-    ProxyRequests Off
-    ProxyPreserveHost On
-
-    ProxyPass "/" "http://mediamtx:${HLS_INTERNAL_PORT}/" retry=0
-    ProxyPassReverse "/" "http://mediamtx:${HLS_INTERNAL_PORT}/"
-
-    Header always set Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate"
-    Header always set Access-Control-Allow-Origin "${APP_URL}"
-    Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Range, Origin, Accept, Content-Type"
-
-    ErrorLog /proc/self/fd/2
-    CustomLog /proc/self/fd/1 combined
-</VirtualHost>
-

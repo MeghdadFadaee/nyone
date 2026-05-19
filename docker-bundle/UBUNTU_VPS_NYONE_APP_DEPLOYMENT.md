@@ -8,6 +8,7 @@ It assumes:
 - HLS playback domain: `hls.nyone.app`
 - RTMP ingest URL: `rtmp://nyone.app:1935`
 - Docker Apache is private on `127.0.0.1:8080`
+- Docker MediaMTX HLS is private on `127.0.0.1:8888`
 - Host Nginx handles public HTTP, HTTPS, and SSL certificates
 
 The application repository itself does not need to exist on the server before deployment. The deploy script clones it into `docker-bundle/runtime/source`.
@@ -56,7 +57,7 @@ ufw --force enable
 ufw status
 ```
 
-Docker can publish container ports outside some UFW rules. In this deployment, Apache is bound to `127.0.0.1:8080`, while RTMP is intentionally public on `1935`.
+Docker can publish container ports outside some UFW rules. In this deployment, Apache is bound to `127.0.0.1:8080`, MediaMTX HLS is bound to `127.0.0.1:8888`, and RTMP is intentionally public on `1935`.
 
 ## 4. Install Docker Engine and Compose plugin
 
@@ -135,6 +136,7 @@ PUBLIC_SCHEME=https
 APP_DOMAIN=nyone.app
 HLS_DOMAIN=hls.nyone.app
 APP_HTTP_PORT=127.0.0.1:8080
+HLS_HTTP_PORT=127.0.0.1:8888
 RTMP_PUBLIC_PORT=1935
 
 APP_NAME=Nyone
@@ -329,7 +331,11 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/nyone.app/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8080;
+        if ($request_method = OPTIONS) {
+            return 204;
+        }
+
+        proxy_pass http://127.0.0.1:8888;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -341,6 +347,10 @@ server {
         proxy_request_buffering off;
         proxy_read_timeout 60s;
         proxy_send_timeout 60s;
+        add_header Access-Control-Allow-Origin "https://nyone.app" always;
+        add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Range, Origin, Accept, Content-Type" always;
+        add_header Access-Control-Expose-Headers "Content-Length, Content-Range" always;
         add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate" always;
     }
 }
@@ -384,6 +394,14 @@ Run one viewer-count sync pass:
 ```bash
 docker compose --env-file .env -f docker-compose.yml exec app php artisan streaming:sync-viewer-counts --once -v
 ```
+
+Check HLS CORS headers:
+
+```bash
+curl -I -H "Origin: https://nyone.app" "https://hls.nyone.app/<channel-slug>/index.m3u8"
+```
+
+The response should include exactly one `Access-Control-Allow-Origin: https://nyone.app` header. A `404` can be normal when the channel is not currently publishing, but duplicate `Access-Control-Allow-Origin` headers mean both Nginx and an upstream are setting CORS; rebuild the MediaMTX container from this bundle and reload Nginx.
 
 Check that MediaMTX API is not exposed on the host. This should fail because the API is only available inside the Docker network:
 

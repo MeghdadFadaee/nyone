@@ -158,7 +158,7 @@ require_config_value APP_DOMAIN "nyone.example.com"
 require_config_value HLS_DOMAIN "nyone-hls.example.com"
 
 if [ "$(env_value APP_DOMAIN)" = "$(env_value HLS_DOMAIN)" ]; then
-    fail "APP_DOMAIN and HLS_DOMAIN must be different because this deployment uses separate Apache virtual hosts."
+    fail "APP_DOMAIN and HLS_DOMAIN must be different because this deployment uses separate app and HLS hostnames."
 fi
 
 GIT_REF="${GIT_REF:-main}"

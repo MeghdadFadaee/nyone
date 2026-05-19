@@ -11,7 +11,7 @@ description: Work on the Nyone docker-bundle deployment bundle under docker-bund
 - Treat `docker-bundle/.env` and `docker-bundle/runtime/` as server-local generated state; do not commit or depend on them.
 - Do not make this bundle depend on the cloned app repository's `.env` or `deploy/mediamtx.yml`.
 - Keep MediaMTX config Docker-owned at `docker/mediamtx/mediamtx.yml.template`.
-- Keep `APP_DOMAIN` and `HLS_DOMAIN` separate because Apache uses separate virtual hosts.
+- Keep `APP_DOMAIN` and `HLS_DOMAIN` separate because the app and HLS are served by different host-level Nginx virtual hosts.
 - Do not run `scripts/deploy.sh`, `docker compose up`, or image builds unless the user confirms this is a deployment server.
 
 ## Architecture
@@ -21,19 +21,20 @@ description: Work on the Nyone docker-bundle deployment bundle under docker-bund
 - `docker-compose.yml` defines `app`, `db`, `redis`, `mediamtx`, `queue`, `scheduler`, `viewer-sync`, and one-shot `migrate`.
 - `docker/app/Dockerfile` builds the Laravel Apache image from `runtime/source`.
 - `docker/app/entrypoint.sh` selects behavior by `CONTAINER_ROLE`.
-- `docker/app/apache/nyone.conf.template` serves Laravel on `APP_DOMAIN` and proxies HLS for `HLS_DOMAIN`.
+- `docker/app/apache/nyone.conf.template` serves Laravel on `APP_DOMAIN`.
+- Host Nginx should proxy `HLS_DOMAIN` directly to the locally published MediaMTX HLS port.
 - `docker/mediamtx/entrypoint.sh` renders the MediaMTX template at container start.
 
 ## Port Defaults
 
 - Apache published HTTP: `80`.
 - MediaMTX RTMP: `1935`.
-- MediaMTX HLS internal: `8888`.
+- MediaMTX HLS local publish/internal: `8888`.
 - MediaMTX API internal: `9997`.
 - PostgreSQL internal: `5432`.
 - Redis internal: `6379`.
 
-Only publish HTTP and RTMP by default. Keep MediaMTX HLS behind Apache and keep the API private on the Docker network.
+Publish Apache HTTP and RTMP by default, and bind MediaMTX HLS to `127.0.0.1:8888` for host Nginx. Keep the MediaMTX API private on the Docker network.
 
 ## Editing Guidance
 
@@ -51,9 +52,11 @@ Only publish HTTP and RTMP by default. Keep MediaMTX HLS behind Apache and keep 
 ## Nginx TLS Proxy Guidance
 
 - Document Nginx as a host-level TLS reverse proxy in `README.md`; do not add Nginx as another Compose service unless the user asks.
-- Keep Docker Apache as the upstream for both app and HLS hostnames. Nginx should proxy both domains to the published Apache port and preserve the `Host` header so Apache can select the correct virtual host.
+- Keep Docker Apache as the upstream for the app hostname only. Nginx should proxy HLS directly to the locally published MediaMTX HLS port.
 - Recommend `APP_HTTP_PORT=127.0.0.1:8080` when Nginx owns host ports `80` and `443`.
+- Recommend `HLS_HTTP_PORT=127.0.0.1:8888` so HLS is reachable by host Nginx but not publicly exposed as a raw port.
 - Include `X-Forwarded-Proto https`, `X-Forwarded-Port 443`, `X-Forwarded-Host`, `X-Real-IP`, and `X-Forwarded-For` in proxy examples.
+- Let host Nginx own public HLS CORS headers. Keep `hlsAllowOrigins: []` in the MediaMTX template so proxied HLS responses do not contain duplicate `Access-Control-Allow-Origin` values.
 - Keep HLS proxy examples buffering off and cache headers set to no-store.
 - Keep RTMP outside the HTTP proxy guidance unless explicitly using Nginx stream proxying; the default is direct TCP `1935` to MediaMTX through Docker.
 

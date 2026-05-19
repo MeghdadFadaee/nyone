@@ -33,7 +33,7 @@ RUN apt-get update \
         zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && a2enmod headers proxy proxy_http rewrite setenvif \
+    && a2enmod headers rewrite setenvif \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

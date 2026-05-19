@@ -16,9 +16,7 @@ rtmpAddress: :${RTMP_INTERNAL_PORT}
 hls: yes
 hlsAddress: :${HLS_INTERNAL_PORT}
 hlsVariant: mpegts
-hlsAllowOrigins:
-  - ${APP_URL}
-  - ${HLS_PUBLIC_URL}
+hlsAllowOrigins: []
 
 pathDefaults:
   record: yes
@@ -32,4 +30,3 @@ pathDefaults:
 paths:
   all_others:
     source: publisher
-
